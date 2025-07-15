@@ -1,6 +1,12 @@
 # Ignore dependencies
 node_modules/
 
+# ignore metadata
+.metadata/
+
+# ignore intellij
+.idea
+
 # Optional: OS/system files
 .DS_Store
 Thumbs.db
