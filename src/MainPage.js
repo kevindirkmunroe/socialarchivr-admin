@@ -384,7 +384,7 @@ function MainPage() {
                         </table> : <div></div> }
                         <table>
                             <thead>
-                                <tr style={{fontSize: 30, fontStyle: 'bold'}}><td>Account</td><td>Last Archive Date</td><td>Count</td></tr>
+                                <tr style={{fontSize: 30, fontStyle: 'bold'}}><td>Account</td><td>Last Archive Date</td></tr>
                             </thead>
                             <tbody>
                                 <tr>
@@ -401,7 +401,7 @@ function MainPage() {
                                         }}>
                                         <FacebookLoginButton/>
                                     </LoginSocialFacebook>
-                                    </td><td>{new Date().toISOString()}</td><td>1000</td>
+                                    </td><td>{new Date().toISOString()}</td>
                                 </tr>
                                 <tr>
                                     <td>
@@ -409,7 +409,7 @@ function MainPage() {
                                             <div><img src={'./instagram-white.png'} style={{width: 50, height: 50}} /></div>
                                             <div style={{marginTop: 14, fontSize: 18}}>Log in with Instagram</div>
                                         </div>
-                                    </td><td>{new Date().toISOString()}</td><td>50</td>
+                                    </td><td>{new Date().toISOString()}</td>
                                 </tr>
                             </tbody>
                         </table>

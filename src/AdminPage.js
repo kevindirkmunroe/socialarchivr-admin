@@ -114,7 +114,38 @@ function AdminPage() {
                                     <div style={{display: 'inline-block', verticalAlign: 'top', textAlign: 'center', marginTop: 4, marginLeft: 4, fontSize: 18, fontWeight: 'bold'}}>{BUILD_ENV.SERVICE_DOMAIN} / {selectedArchiveLogs.name}</div>
                                 </div>
                                 <div style={{marginTop: 6, marginLeft: 16}}>{selectedArchiveLogs.data.length > 0 ?JSON.stringify(selectedArchiveLogs) : 'No Logs.'}</div>
-                                <div style={{marginLeft: 12}}>
+                                <div style={{marginLeft: 12, marginTop: 6}}>
+                                    <hr/>
+                                    <table>
+                                        <thead><tr><h3>Accounts</h3></tr></thead>
+                                        <tbody>
+                                        <tr>
+                                            <td>{ fbProfile ? <div style={{marginLeft: 10}}><img alt="Facebook" src="./facebook-16x16-icon.png" width="24" height="24" />&nbsp;{fbProfile.name}</div> :
+                                                <LoginSocialFacebook
+                                                    appId={APP_ID}
+                                                    version="v18.0"
+                                                    scope='user_posts'
+                                                    onReject={(error) => {
+                                                        console.log('ERROR:' + error);
+                                                    }}
+                                                    onResolve={(response) => {
+                                                        setFbProfile(response.data);
+                                                    }}>
+                                                    <FacebookLoginButton/>
+                                                </LoginSocialFacebook>
+                                            }
+                                            </td><td>&nbsp;<b>Archived</b>: {new Date().toISOString()}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <div style={{marginLeft : 6, marginTop: 10, marginBottom: 4, borderRadius: 3, fontSize: 20, backgroundColor: '#d62976', color: 'white', borderWidth: 0, height: 50, width: 280, display: 'flex', flexDirection: 'row'}}>
+                                                    <div><img src={'./instagram-white.png'} style={{width: 50, height: 50}} /></div>
+                                                    <div style={{marginTop: 14, fontSize: 18}}>Log in with Instagram</div>
+                                                </div>
+                                            </td><td>&nbsp;<b>Archived</b>:{new Date().toISOString()}</td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
                                     <h3>Posts</h3>
                                     {selectedArchivePosts && selectedArchivePosts.data.length > 0 ? JSON.stringify(selectedArchivePosts) : 'No Posts.'
                                     }
