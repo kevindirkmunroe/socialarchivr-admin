@@ -20,20 +20,6 @@ function AdminPage() {
         setIgProfile(igProfile);
     }, [igProfile]);
 
-    const [archives, setArchives] = useState(null);
-    useEffect(() => {
-        const socialArchivrUserId = JSON.parse(localStorage.getItem('authToken')).userId;
-        axios.get(`http://${BUILD_ENV.SERVICE_DOMAIN}:${BUILD_ENV.SERVICE_PORT}/api/archives/user/${socialArchivrUserId}`)
-            .then(res => {
-                console.log(`ARCHIVE OK: ${JSON.stringify(res)}`);
-                setArchives(res.data);
-            })
-            .catch((error) => {
-                console.log(`ARCHIVE ERROR: ${JSON.stringify(error)}`);
-            });
-
-    }, []);
-
     const [selectedArchiveLogs, setSelectedArchiveLogs] = useState(null);
     useEffect(() => {
         setSelectedArchiveLogs(selectedArchiveLogs);
@@ -44,10 +30,20 @@ function AdminPage() {
         setSelectedArchivePosts(selectedArchivePosts);
     }, [selectedArchivePosts]);
 
+    const logout = () => {
+        localStorage.clear();
+        window.location.href = "/login";
+    }
+
+    let isLoading = false;
+    const setIsLoading = (flag) => {
+        isLoading = flag;
+    };
+
     const getArchiveLogs = (archiveName, archiveId) => {
         axios.get(`http://${BUILD_ENV.SERVICE_DOMAIN}:${BUILD_ENV.SERVICE_PORT}/api/archives/${archiveId}/logs`)
             .then(res => {
-                console.log(`ARCHIVE LOGS OK: ${JSON.stringify(res)}`);
+                // console.log(`ARCHIVE LOGS OK: ${JSON.stringify(res)}`);
                 setSelectedArchiveLogs({name: archiveName, data: res.data});
             })
             .catch((error) => {
@@ -58,13 +54,25 @@ function AdminPage() {
     const getArchivePosts = (archiveId) => {
         axios.get(`http://${BUILD_ENV.SERVICE_DOMAIN}:${BUILD_ENV.SERVICE_PORT}/api/archives/${archiveId}/posts`)
             .then(res => {
-                console.log(`ARCHIVE POSTS OK: ${JSON.stringify(res)}`);
                 setSelectedArchivePosts({id: archiveId, data: res.data});
             })
             .catch((error) => {
                 console.log(`ARCHIVE POSTS ERROR: ${JSON.stringify(error)}`);
             });
     }
+
+    const [archives, setArchives] = useState(null);
+    useEffect(() => {
+        const socialArchivrUserId = JSON.parse(localStorage.getItem('authToken')).userId;
+        axios.get(`http://${BUILD_ENV.SERVICE_DOMAIN}:${BUILD_ENV.SERVICE_PORT}/api/archives/user/${socialArchivrUserId}`)
+            .then(res => {
+                setArchives(res.data);
+            })
+            .catch((error) => {
+                console.log(`ARCHIVE ERROR: ${JSON.stringify(error)}`);
+            });
+
+    }, []);
 
     return (
         <div>
@@ -116,11 +124,13 @@ function AdminPage() {
                                 <div style={{marginTop: 6, marginLeft: 16}}>{selectedArchiveLogs.data.length > 0 ?JSON.stringify(selectedArchiveLogs) : 'No Logs.'}</div>
                                 <div style={{marginLeft: 12, marginTop: 6}}>
                                     <hr/>
+                                    <br/>
                                     <table>
-                                        <thead><tr><h3>Accounts</h3></tr></thead>
+                                        <thead><tr><td><b>&nbsp;&nbsp;Account Name</b></td><td><b>Last Archived</b></td></tr></thead>
                                         <tbody>
                                         <tr>
-                                            <td>{ fbProfile ? <div style={{marginLeft: 10}}><img alt="Facebook" src="./facebook-16x16-icon.png" width="24" height="24" />&nbsp;{fbProfile.name}</div> :
+                                            <td>{ fbProfile ?
+                                                <div style={{marginLeft: 10}}><img alt="Facebook" src="./facebook-16x16-icon.png" width="24" height="24" />&nbsp;{fbProfile.name}</div> :
                                                 <LoginSocialFacebook
                                                     appId={APP_ID}
                                                     version="v18.0"
@@ -134,19 +144,33 @@ function AdminPage() {
                                                     <FacebookLoginButton/>
                                                 </LoginSocialFacebook>
                                             }
-                                            </td><td>&nbsp;<b>Archived</b>: {new Date().toISOString()}</td>
+                                            </td><td>&nbsp;{ fbProfile ? new Date().toISOString() : '--'}</td>
+                                            { fbProfile ? <td onClick={() => alert('Update!')}>&nbsp;&nbsp;
+                                                    <img alt='refresh' src={'./refresh.png' } style={{width: 20, height: 20}}/>&nbsp;<b>Update</b>
+                                                </td>:
+                                                <td style={{backgroundColor: '#F8FAF9', color: 'gray'}}>&nbsp;&nbsp;<img alt='refresh' src={'./refresh.png' } style={{width: 20, height: 20}}/>&nbsp;Update&nbsp;&nbsp;</td>
+                                            }
                                         </tr>
                                         <tr>
                                             <td>
                                                 <div style={{marginLeft : 6, marginTop: 10, marginBottom: 4, borderRadius: 3, fontSize: 20, backgroundColor: '#d62976', color: 'white', borderWidth: 0, height: 50, width: 280, display: 'flex', flexDirection: 'row'}}>
-                                                    <div><img src={'./instagram-white.png'} style={{width: 50, height: 50}} /></div>
+                                                    <div><img alt='instagram' src={'./instagram-white.png'} style={{width: 50, height: 50}} /></div>
                                                     <div style={{marginTop: 14, fontSize: 18}}>Log in with Instagram</div>
                                                 </div>
-                                            </td><td>&nbsp;<b>Archived</b>:{new Date().toISOString()}</td>
+                                            </td><td>&nbsp;--</td>
+                                            <td  style={{backgroundColor: '#F8FAF9', color: 'gray'}}>&nbsp;&nbsp;<img alt='refresh' src={'./refresh.png' } style={{width: 20, height: 20}}/>&nbsp;Update&nbsp;&nbsp;</td>
                                         </tr>
                                         </tbody>
                                     </table>
-                                    <h3>Posts</h3>
+                                    <div style={{marginLeft: 20, borderWidth: 3, borderColor: 'black'}}><h4>+ Add Account</h4></div>
+                                    <div style={{display: 'flex', flexDirection: 'row'}}>
+                                        <div style={{marginLeft: 20, borderRadius: 4, backgroundColor: '#d62976', width: 50, height: 48}}><img alt='instagram' src={'./facebook-16x16-icon.png'} style={{width: 50, height: 50}} /></div>
+                                        <div style={{marginLeft: 20, borderRadius: 4, backgroundColor: '#d62976', width: 50, height: 48}}><img alt='instagram' src={'./instagram-white.png'} style={{width: 50, height: 50}} /></div>
+                                    </div>
+                                    <hr/>
+                                    <div style={{display: 'flex', flexDirection: 'row', marginTop: 10, marginBottom: 10, fontSize: 18, fontWeight: 'bold'}}>
+                                        &nbsp;&nbsp;<img alt="Facebook" src="./icons8-notes-32.png" width="24" height="24" />&nbsp;Posts ({selectedArchivePosts ? selectedArchivePosts.data.length: '0'})
+                                    </div>
                                     {selectedArchivePosts && selectedArchivePosts.data.length > 0 ? JSON.stringify(selectedArchivePosts) : 'No Posts.'
                                     }
                                 </div>
@@ -154,6 +178,11 @@ function AdminPage() {
                             <div>No Archive Selected.</div>}
                     </div>
                 </main>
+                <footer style={{textAlign: 'right'}}>
+                    <button style={{marginLeft : 10, marginTop: 10, marginBottom: 14, marginRight: 30, borderRadius: 3, fontSize: 20, backgroundColor: 'green', color: 'white', borderWidth: 0}} onClick={logout} disabled={isLoading}>
+                        Log Out
+                    </button>
+                </footer>
             </div>
         </div>
     );
