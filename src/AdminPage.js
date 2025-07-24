@@ -2,12 +2,20 @@ import { LoginSocialFacebook} from "reactjs-social-login";
 import { FacebookLoginButton} from "react-social-login-buttons";
 import axios from 'axios';
 import {useState, useEffect} from "react";
+import { format } from 'date-fns';
+import { enUS } from 'date-fns/locale';
+
 import 'react-tabs/style/react-tabs.css';
 
 const localProcessEnv = { APP_ID: '387900606919443', WEB_DOMAIN : 'localhost', SERVICE_DOMAIN: 'localhost', VIEWER_DOMAIN: 'localhost', SERVICE_PORT: 8080};
 const BUILD_ENV = process.env.REACT_APP_BUILD_ENV || localProcessEnv;
 
 function AdminPage() {
+
+    const formatDate = (date) => {
+        return format(date, "EEEE MMMM do h:mmaaa", { locale: enUS });
+    }
+
     const [fbProfile, setFbProfile] = useState(null);
     useEffect(() => {
         console.log(`Setting FB profile: ${JSON.stringify(fbProfile)}`);
@@ -40,6 +48,11 @@ function AdminPage() {
         window.location.href = "/login";
     }
 
+    const [socialAccounts, setSocialAccounts] = useState(null);
+    useEffect(() => {
+        setSocialAccounts(socialAccounts);
+    }, [socialAccounts]);
+
     const getArchiveLogs = (archiveName, archiveId) => {
         axios.get(`http://${BUILD_ENV.SERVICE_DOMAIN}:${BUILD_ENV.SERVICE_PORT}/api/archives/${archiveId}/logs`)
             .then(res => {
@@ -59,6 +72,19 @@ function AdminPage() {
             .catch((error) => {
                 console.log(`ARCHIVE POSTS ERROR: ${JSON.stringify(error)}`);
             });
+    }
+
+    const getSocialAccounts = (archiveId) => {
+        axios.get(`http://${BUILD_ENV.SERVICE_DOMAIN}:${BUILD_ENV.SERVICE_PORT}/api/social-accounts/${archiveId}`)
+            .then(res => {
+                const mapByUsername = new Map(res.data.map(obj => [obj.username, obj]));
+                console.log(`SOCIAL ACCOUNTS OK: ${JSON.stringify(Object.fromEntries(mapByUsername))}`);
+                return mapByUsername
+            })
+            .catch((error) => {
+                console.log(`SOCIAL ACCOUNTS ERROR: ${JSON.stringify(error)}`);
+            });
+        return {};
     }
 
     //
@@ -92,7 +118,7 @@ function AdminPage() {
 
             Promise.all(promises)
                 .then((res) => {
-                    console.log(`ARCHIVE HISTORY OK.`);
+                    // console.log(`ARCHIVE HISTORY OK.`);
                     setArchiveHistory(res.map(r => r.data)); // ✅ just the data
                 })
                 .catch((error) => {
@@ -101,7 +127,6 @@ function AdminPage() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [archives]);
 
-    console.log(`ARCHIVE HISTORY FINAL: ${JSON.stringify(archiveHistory)}`);
     let flatHistory = null;
     let archiveMap = null;
     if(archiveHistory) {
@@ -116,15 +141,15 @@ function AdminPage() {
             return acc;
         }, {});
     }
-    console.log(`ARCHIVE HISTORY FLAT: ${JSON.stringify(archiveMap)}`);
+    // console.log(`ARCHIVE HISTORY FLAT: ${JSON.stringify(archiveMap)}`);
 
     const accountImageFinder = (accountType) => {
         switch (accountType){
             case 'FACEBOOK':
-                return "./facebook-16x16-icon.png";
+                return "./facebook-black.png";
                 break;
             case 'INSTAGRAM':
-                return "./256px-instagram_icon.png";
+                return "./black-instagram-logo-3497.png";
                 break;
             default:
                 break;
@@ -181,17 +206,34 @@ function AdminPage() {
                                 <div style={{marginLeft: 12, marginTop: 6}}>
                                     <hr/>
                                     <div style={{display: 'flex', flexDirection: 'row', marginTop: 20, marginBottom: 10, fontSize: 18, fontWeight: 'bold'}}>
-                                        <img alt="Notes" src="./icons8-globe-64.png" width="24" height="24" />&nbsp;Social Media
+                                        <img alt="Notes" src="./icons8-globe-64.png" width="24" height="24" />&nbsp;Accounts
                                     </div>
                                     <table>
-                                        <thead><tr><td><b>&nbsp;&nbsp;Account</b></td><td><b>Last Archived</b></td></tr></thead>
+                                        <thead><tr><td><b>&nbsp;&nbsp;Account</b></td><td><b>Last Login</b></td><td><b>Last Archived</b></td></tr></thead>
                                         <tbody>
                                         { archiveMap[selectedArchiveLogs.name] ? archiveMap[selectedArchiveLogs.name].map((rec) => {
-                                                return <tr>
-                                                    <td><div style={{marginLeft: 10}}><img alt={rec.socialMediaAccount} src={accountImageFinder(rec.socialMediaAccount)} width="24" height="24" />&nbsp;{rec.socialMediaUsername}</div></td>
-                                                    <td>{rec.archiveDateCompleted}</td>
-                                                    <td><img alt='refresh' src={'./refresh.png' } style={{width: 20, height: 20}}/>&nbsp;<b>Update</b></td>
-                                                </tr>
+                                            return <tr key={rec.id}>
+                                                <td><div style={{marginLeft: 10}}><img alt={rec.socialMediaAccount} src={accountImageFinder(rec.socialMediaAccount)} width="24" height="24" />&nbsp;{rec.socialMediaUsername}</div></td>
+                                                <td>--</td>
+                                                <td>{formatDate(rec.archiveDateCompleted)}</td>
+                                                {/*<td>{ rec.socialMediaAccount == 'FACEBOOK' ?*/}
+                                                {/*    <LoginSocialFacebook*/}
+                                                {/*        appId={BUILD_ENV.APP_ID}*/}
+                                                {/*        onResolve={({ data }) => handleFbLoginSuccess(data)}*/}
+                                                {/*        onReject={(err) => console.error('Login failed', err)}*/}
+                                                {/*        scope="public_profile,email,user_posts,pages_show_list"*/}
+                                                {/*        auth_type="reauthenticate"*/}
+                                                {/*    >*/}
+                                                {/*        <FacebookLoginButton/>*/}
+                                                {/*    </LoginSocialFacebook> :*/}
+                                                {/*    <div style={{marginLeft : 6, marginTop: 10, marginBottom: 4, borderRadius: 3, fontSize: 20, backgroundColor: '#d62976', color: 'white', borderWidth: 0, height: 50, width: 260, display: 'flex', flexDirection: 'row'}}>*/}
+                                                {/*        <div><img alt='instagram' src={'./instagram-white.png'} style={{width: 50, height: 50}} /></div>*/}
+                                                {/*        <div style={{marginTop: 14, fontSize: 18}}>Log in with Instagram</div>*/}
+                                                {/*    </div>*/}
+                                                {/*}*/}
+                                                {/*</td>*/}
+                                                <td><img alt='refresh' src={'./refresh.png' } style={{width: 20, height: 20}}/>&nbsp;<b>Update</b></td>
+                                            </tr>
                                         }) : <div style={{marginTop: 15, marginLeft: 10}}>No Archived Accounts.</div>
                                         }
                                         </tbody>
@@ -203,7 +245,7 @@ function AdminPage() {
                                     </div>
                                     <hr/>
                                     <div style={{display: 'flex', flexDirection: 'row', marginTop: 20, marginBottom: 10, fontSize: 18, fontWeight: 'bold'}}>
-                                        <img alt="Notes" src="./icons8-notes-32.png" width="24" height="24" />&nbsp;Archived Posts ({selectedArchivePosts ? selectedArchivePosts.data.length: '0'})
+                                        <img alt="Notes" src="./icons8-notes-32.png" width="24" height="24" />&nbsp;Posts ({selectedArchivePosts ? selectedArchivePosts.data.length: '0'})
                                     </div>
                                     {selectedArchivePosts && selectedArchivePosts.data.length > 0 ? JSON.stringify(selectedArchivePosts) : 'No Posts.'
                                     }
