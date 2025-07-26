@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import BUILD_ENV from './Environment';
 
 const LoginPage = () => {
     const [email, setEmail] = useState("");
@@ -17,7 +18,7 @@ const LoginPage = () => {
         setErrorMessage("");
 
         // Example: Send to your backend
-        fetch("http://localhost:8080/api/login", {
+        fetch(`http://${BUILD_ENV.SERVICE_DOMAIN}:${BUILD_ENV.SERVICE_PORT}/api/login`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

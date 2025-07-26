@@ -1,14 +1,11 @@
-import { LoginSocialFacebook} from "reactjs-social-login";
-import { FacebookLoginButton} from "react-social-login-buttons";
 import axios from 'axios';
 import {useState, useEffect} from "react";
 import { format } from 'date-fns';
 import { enUS } from 'date-fns/locale';
+import BUILD_ENV from './Environment';
 
 import 'react-tabs/style/react-tabs.css';
-
-const localProcessEnv = { APP_ID: '387900606919443', WEB_DOMAIN : 'localhost', SERVICE_DOMAIN: 'localhost', VIEWER_DOMAIN: 'localhost', SERVICE_PORT: 8080};
-const BUILD_ENV = process.env.REACT_APP_BUILD_ENV || localProcessEnv;
+import SocialMediaLoginModal from "./SocialMediaLoginModal";
 
 function AdminPage() {
 
@@ -33,15 +30,16 @@ function AdminPage() {
         setIgProfile(igProfile);
     }, [igProfile]);
 
-    const [selectedArchiveLogs, setSelectedArchiveLogs] = useState(null);
-    useEffect(() => {
-        setSelectedArchiveLogs(selectedArchiveLogs);
-    }, [selectedArchiveLogs]);
-
     const [selectedArchivePosts, setSelectedArchivePosts] = useState(null);
     useEffect(() => {
         setSelectedArchivePosts(selectedArchivePosts);
     }, [selectedArchivePosts]);
+
+    // archiveId
+    const [selectedArchive, setSelectedArchive] = useState(null);
+    useEffect(() => {
+        setSelectedArchive(selectedArchive);
+    }, [selectedArchive]);
 
     const logout = () => {
         localStorage.clear();
@@ -53,38 +51,15 @@ function AdminPage() {
         setSocialAccounts(socialAccounts);
     }, [socialAccounts]);
 
-    const getArchiveLogs = (archiveName, archiveId) => {
-        axios.get(`http://${BUILD_ENV.SERVICE_DOMAIN}:${BUILD_ENV.SERVICE_PORT}/api/archives/${archiveId}/logs`)
-            .then(res => {
-                // console.log(`ARCHIVE LOGS OK: ${JSON.stringify(res)}`);
-                setSelectedArchiveLogs({name: archiveName, data: res.data});
-            })
-            .catch((error) => {
-                console.log(`ARCHIVE LOGS ERROR: ${JSON.stringify(error)}`);
-            });
-    }
-
-    const getArchivePosts = (archiveId) => {
+    const getArchiveInfo = (archiveId, archiveName) => {
         axios.get(`http://${BUILD_ENV.SERVICE_DOMAIN}:${BUILD_ENV.SERVICE_PORT}/api/archives/${archiveId}/posts`)
             .then(res => {
+                setSelectedArchive({archiveId, archiveName});
                 setSelectedArchivePosts({id: archiveId, data: res.data});
             })
             .catch((error) => {
-                console.log(`ARCHIVE POSTS ERROR: ${JSON.stringify(error)}`);
+                console.log(`ARCHIVE INFO ERROR: ${JSON.stringify(error)}`);
             });
-    }
-
-    const getSocialAccounts = (archiveId) => {
-        axios.get(`http://${BUILD_ENV.SERVICE_DOMAIN}:${BUILD_ENV.SERVICE_PORT}/api/social-accounts/${archiveId}`)
-            .then(res => {
-                const mapByUsername = new Map(res.data.map(obj => [obj.username, obj]));
-                console.log(`SOCIAL ACCOUNTS OK: ${JSON.stringify(Object.fromEntries(mapByUsername))}`);
-                return mapByUsername
-            })
-            .catch((error) => {
-                console.log(`SOCIAL ACCOUNTS ERROR: ${JSON.stringify(error)}`);
-            });
-        return {};
     }
 
     //
@@ -108,8 +83,23 @@ function AdminPage() {
     }, []);
 
     // Get history by archive
-    const [archiveHistory, setArchiveHistory] = useState(null);
+    // function groupByArchiveName(data) {
+    //     const result = new Map();
+    //
+    //     data.forEach(item => {
+    //         const name = item.archive?.id;
+    //         if (!name) return;
+    //
+    //         if (!result.has(name)) {
+    //             result.set(name, []);
+    //         }
+    //         result.get(name).push(item);
+    //     });
+    //
+    //     return result;
+    // }
 
+    const [archiveHistory, setArchiveHistory] = useState(null);
     useEffect(() => {
         if (!archives || archives.length === 0) return;
 
@@ -118,8 +108,8 @@ function AdminPage() {
 
             Promise.all(promises)
                 .then((res) => {
-                    // console.log(`ARCHIVE HISTORY OK.`);
                     setArchiveHistory(res.map(r => r.data)); // ✅ just the data
+                    // setArchiveHistory(groupByArchiveName(res.data)); // ✅ just the data
                 })
                 .catch((error) => {
                     console.log(`GET ARCHIVE ERROR: ${JSON.stringify(error)}`);
@@ -128,20 +118,24 @@ function AdminPage() {
     }, [archives]);
 
     let flatHistory = null;
-    let archiveMap = null;
+    let archiveHistoryMap = null;
     if(archiveHistory) {
+        console.log(`ARCHIVE HISTORK 2 OK: ${JSON.stringify(archiveHistory)}`);
         flatHistory = archiveHistory.flat().filter(Boolean);
         // Group by archive name
-         archiveMap = flatHistory.reduce((acc, record) => {
-            const name = record.archive.name;
-            if (!acc[name]) {
-                acc[name] = [];
+        archiveHistoryMap = flatHistory.reduce((acc, record) => {
+            const id = record.archive.id;
+            if (!acc[id]) {
+                acc[id] = [];
             }
-            acc[name].push(record);
+            acc[id].push(record);
             return acc;
         }, {});
     }
-    // console.log(`ARCHIVE HISTORY FLAT: ${JSON.stringify(archiveMap)}`);
+
+    const handleUpdateAccount = (archiveName, mediaAccountUsername) => {
+        alert(`Update archive ${archiveName} account ${mediaAccountUsername}!`);
+    }
 
     const accountImageFinder = (accountType) => {
         switch (accountType){
@@ -156,111 +150,111 @@ function AdminPage() {
         }
     }
 
-    return (
-        <div>
-            <div className="parent">
-                <header>
-                    <div className="child">
-                        <table>
-                            <tbody>
-                            <tr>
-                                <td><img alt='' src={'./generic-profile.png'}
-                                         style={{marginLeft: 4, marginRight: 10, width: 48, height: 48}}/></td>
-                                <td>
-                                    <div style={{
-                                        fontSize: 24,
-                                        fontStyle: 'bold'
-                                    }}>{JSON.parse(localStorage.getItem('authToken')).userFullName}</div>
-                                </td>
-                            </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </header>
+    const [showLogin, setShowLogin] = useState(false);
+    const [userData, setUserData] = useState(null);
+    const savedToken = localStorage.getItem('fb_token');
 
-                <section className="left-sidebar" style={{backgroundColor: '#F8FAF9'}}>
-                    <div style={{marginLeft: 20, fontSize: 16, fontWeight: 900}}><img src={'./storage_black_24dp.svg'} style={{marginRight: 10, width: 32, height: 32, verticalAlign: 'middle', textAlign: 'center'}}/>{BUILD_ENV.SERVICE_DOMAIN} ({archives ? archives.length : 0})</div>
-                    {archives ? archives.map((item) => (
-                        <div style={{marginLeft: 20}} key={item.id} onClick={() => {
-                            getArchiveLogs(item.name, item.id);
-                            getArchivePosts(item.id);
-                            }
-                        }>
-                            <div style={{marginTop: 5, marginLeft: 6, flexDirection: 'column'}}>
-                                <div style={{display: 'inline-block'}}><img alt='repository' src={'./Database--Streamline-Solar.svg'} style={{ width:24, height: 24}}/>
-                                </div>
-                                <div style={{display: 'inline-block', verticalAlign: 'top', textAlign: 'center', marginTop: 2, marginLeft: 4}}>{item.name}</div>
-                            </div>
+    return (
+        <>
+            <SocialMediaLoginModal
+                show={showLogin}
+                onClose={() => setShowLogin(false)}
+                accessToken={savedToken}
+                onLoginSuccess={(data) => {
+                    setUserData(data);
+                    localStorage.setItem('fb_token', data.accessToken);
+                }}
+            />
+            <div>
+                <div className="parent">
+                    <header>
+                        <div className="child">
+                            <table>
+                                <tbody>
+                                <tr>
+                                    <td><img alt='' src={'./generic-profile.png'}
+                                             style={{marginLeft: 4, marginRight: 10, width: 48, height: 48}}/></td>
+                                    <td>
+                                        <div style={{
+                                            fontSize: 24,
+                                            fontStyle: 'bold'
+                                        }}>{JSON.parse(localStorage.getItem('authToken')).userFullName}</div>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
                         </div>
-                    )) : 'Loading...'}
-                </section>
-                <main>
-                    <div style={{marginLeft: 10, flexDirection: 'column'}}>
-                        {selectedArchiveLogs ?
-                            <>
+                    </header>
+
+                    <section className="left-sidebar" style={{backgroundColor: '#F8FAF9'}}>
+                        <div style={{marginLeft: 20, fontSize: 16, fontWeight: 900}}><img src={'./storage_black_24dp.svg'} style={{marginRight: 10, width: 32, height: 32, verticalAlign: 'middle', textAlign: 'center'}}/>{BUILD_ENV.SERVICE_DOMAIN} ({archives ? archives.length : 0})</div>
+                        {archives ? archives.map((item) => (
+                            <div style={{marginLeft: 20}} key={item.id} onClick={() => {
+                                getArchiveInfo(item.id, item.name);
+                                }
+                            }>
                                 <div style={{marginTop: 5, marginLeft: 6, flexDirection: 'column'}}>
-                                    <div style={{display: 'inline-block'}}><img alt='repository' src={'./vecteezy_database-icon-simple-design_53489038.jpg'} style={{ width:30, height: 30}}/>
+                                    <div style={{display: 'inline-block'}}><img alt='repository' src={'./Database--Streamline-Solar.svg'} style={{ width:24, height: 24}}/>
                                     </div>
-                                    <div style={{display: 'inline-block', verticalAlign: 'top', textAlign: 'center', marginTop: 4, marginLeft: 4, fontSize: 18, fontWeight: 'bold'}}>{BUILD_ENV.SERVICE_DOMAIN} / {selectedArchiveLogs.name}</div>
+                                    <div style={{display: 'inline-block', verticalAlign: 'top', textAlign: 'center', marginTop: 2, marginLeft: 4}}>{item.name}</div>
                                 </div>
-                                <div style={{marginLeft: 12, marginTop: 6}}>
-                                    <hr/>
-                                    <div style={{display: 'flex', flexDirection: 'row', marginTop: 20, marginBottom: 10, fontSize: 18, fontWeight: 'bold'}}>
-                                        <img alt="Notes" src="./icons8-globe-64.png" width="24" height="24" />&nbsp;Accounts
+                            </div>
+                        )) : 'Loading...'}
+                    </section>
+                    <main>
+                        <div style={{marginLeft: 10, flexDirection: 'column'}}>
+                            {selectedArchive ?
+                                <>
+                                    <div style={{marginTop: 5, marginLeft: 6, flexDirection: 'column'}}>
+                                        <div style={{display: 'inline-block'}}><img alt='repository' src={'./vecteezy_database-icon-simple-design_53489038.jpg'} style={{ width:30, height: 30}}/>
+                                        </div>
+                                        <div style={{display: 'inline-block', verticalAlign: 'top', textAlign: 'center', marginTop: 4, marginLeft: 4, fontSize: 18, fontWeight: 'bold'}}>{BUILD_ENV.SERVICE_DOMAIN} / {selectedArchive.archiveName}</div>
                                     </div>
-                                    <table>
-                                        <thead><tr><td><b>&nbsp;&nbsp;Account</b></td><td><b>Last Login</b></td><td><b>Last Archived</b></td></tr></thead>
-                                        <tbody>
-                                        { archiveMap[selectedArchiveLogs.name] ? archiveMap[selectedArchiveLogs.name].map((rec) => {
-                                            return <tr key={rec.id}>
-                                                <td><div style={{marginLeft: 10}}><img alt={rec.socialMediaAccount} src={accountImageFinder(rec.socialMediaAccount)} width="24" height="24" />&nbsp;{rec.socialMediaUsername}</div></td>
-                                                <td>--</td>
-                                                <td>{formatDate(rec.archiveDateCompleted)}</td>
-                                                {/*<td>{ rec.socialMediaAccount == 'FACEBOOK' ?*/}
-                                                {/*    <LoginSocialFacebook*/}
-                                                {/*        appId={BUILD_ENV.APP_ID}*/}
-                                                {/*        onResolve={({ data }) => handleFbLoginSuccess(data)}*/}
-                                                {/*        onReject={(err) => console.error('Login failed', err)}*/}
-                                                {/*        scope="public_profile,email,user_posts,pages_show_list"*/}
-                                                {/*        auth_type="reauthenticate"*/}
-                                                {/*    >*/}
-                                                {/*        <FacebookLoginButton/>*/}
-                                                {/*    </LoginSocialFacebook> :*/}
-                                                {/*    <div style={{marginLeft : 6, marginTop: 10, marginBottom: 4, borderRadius: 3, fontSize: 20, backgroundColor: '#d62976', color: 'white', borderWidth: 0, height: 50, width: 260, display: 'flex', flexDirection: 'row'}}>*/}
-                                                {/*        <div><img alt='instagram' src={'./instagram-white.png'} style={{width: 50, height: 50}} /></div>*/}
-                                                {/*        <div style={{marginTop: 14, fontSize: 18}}>Log in with Instagram</div>*/}
-                                                {/*    </div>*/}
-                                                {/*}*/}
-                                                {/*</td>*/}
-                                                <td><img alt='refresh' src={'./refresh.png' } style={{width: 20, height: 20}}/>&nbsp;<b>Update</b></td>
-                                            </tr>
-                                        }) : <div style={{marginTop: 15, marginLeft: 10}}>No Archived Accounts.</div>
+                                    <div style={{marginLeft: 12, marginTop: 6}}>
+                                        <hr/>
+                                        <div style={{display: 'flex', flexDirection: 'row', marginTop: 20, marginBottom: 10, fontSize: 18, fontWeight: 'bold'}}>
+                                            <img alt="Notes" src="./icons8-globe-64.png" width="24" height="24" />&nbsp;Accounts
+                                        </div>
+                                        <table>
+                                            <thead><tr><td><b>&nbsp;&nbsp;Account</b></td><td><b>Last Archived</b></td></tr></thead>
+                                            <tbody>
+                                                <tr>{JSON.stringify(archiveHistory)}</tr>
+                                            { selectedArchive && archiveHistoryMap[selectedArchive.archiveId] ? archiveHistoryMap[selectedArchive.archiveId].map((rec) => {
+                                                return <tr key={rec.id}>
+                                                        <td>{JSON.stringify(archiveHistory)}</td>
+                                                        <td><div style={{marginLeft: 10}}><img alt={rec.socialMediaAccount} src={accountImageFinder(rec.socialMediaAccount)} width="24" height="24" />&nbsp;{rec.socialMediaUsername}</div></td>
+                                                        <td>{formatDate(rec.archiveDateCompleted)}</td>
+                                                        <td onClick={() => handleUpdateAccount(selectedArchivePosts.id, rec.socialMediaUsername)}><img alt='refresh' src={'./refresh.png' } style={{marginLeft: 10, width: 20, height: 20}}/>&nbsp;<b>Update</b></td>
+                                                        </tr>
+                                                }) :
+                                                <div style={{marginTop: 15, marginLeft: 10}}>No Archived Accounts.</div>
+                                            }
+                                            </tbody>
+                                        </table>
+                                        <div style={{marginLeft: 20, borderWidth: 3, borderColor: 'black'}}><h4>+ Add Account</h4></div>
+                                        <div style={{display: 'flex', flexDirection: 'row'}}>
+                                            <div style={{marginLeft: 20, borderRadius: 4, width: 50, height: 48}}><img alt='instagram' src={'./facebook-16x16-icon.png'} style={{width: 40, height: 40}} /></div>
+                                            <div style={{marginLeft: 20, borderRadius: 4, backgroundColor: '#d62976', width: 40, height: 40}}><img alt='instagram' src={'./instagram-white.png'} style={{width: 40, height: 40}} /></div>
+                                        </div>
+                                        <hr/>
+                                        <div style={{display: 'flex', flexDirection: 'row', marginTop: 20, marginBottom: 10, fontSize: 18, fontWeight: 'bold'}}>
+                                            <img alt="Notes" src="./icons8-notes-32.png" width="24" height="24" />&nbsp;Posts ({selectedArchivePosts ? selectedArchivePosts.data.length: '0'})
+                                        </div>
+                                        {selectedArchivePosts && selectedArchivePosts.data.length > 0 ? JSON.stringify(selectedArchivePosts) : 'No Posts.'
                                         }
-                                        </tbody>
-                                    </table>
-                                    <div style={{marginLeft: 20, borderWidth: 3, borderColor: 'black'}}><h4>+ Add Account</h4></div>
-                                    <div style={{display: 'flex', flexDirection: 'row'}}>
-                                        <div style={{marginLeft: 20, borderRadius: 4, width: 50, height: 48}}><img alt='instagram' src={'./facebook-16x16-icon.png'} style={{width: 40, height: 40}} /></div>
-                                        <div style={{marginLeft: 20, borderRadius: 4, backgroundColor: '#d62976', width: 40, height: 40}}><img alt='instagram' src={'./instagram-white.png'} style={{width: 40, height: 40}} /></div>
                                     </div>
-                                    <hr/>
-                                    <div style={{display: 'flex', flexDirection: 'row', marginTop: 20, marginBottom: 10, fontSize: 18, fontWeight: 'bold'}}>
-                                        <img alt="Notes" src="./icons8-notes-32.png" width="24" height="24" />&nbsp;Posts ({selectedArchivePosts ? selectedArchivePosts.data.length: '0'})
-                                    </div>
-                                    {selectedArchivePosts && selectedArchivePosts.data.length > 0 ? JSON.stringify(selectedArchivePosts) : 'No Posts.'
-                                    }
-                                </div>
-                            </> :
-                            <div>No Archive Selected.</div>}
-                    </div>
-                </main>
-                <footer style={{textAlign: 'right'}}>
-                    <button style={{marginLeft : 10, marginTop: 10, marginBottom: 14, marginRight: 30, borderRadius: 3, fontSize: 20, backgroundColor: 'green', color: 'white', borderWidth: 0}} onClick={logout}>
-                        Log Out
-                    </button>
-                </footer>
+                                </> :
+                                <div>No Archive Selected.</div>}
+                        </div>
+                    </main>
+                    <footer style={{textAlign: 'right'}}>
+                        <button style={{marginLeft : 10, marginTop: 10, marginBottom: 14, marginRight: 30, borderRadius: 3, fontSize: 20, backgroundColor: 'green', color: 'white', borderWidth: 0}} onClick={logout}>
+                            Log Out
+                        </button>
+                    </footer>
+                </div>
             </div>
-        </div>
+        </>
     );
 }
 
