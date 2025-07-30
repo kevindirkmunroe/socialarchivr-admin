@@ -6,6 +6,7 @@ import BUILD_ENV from './Environment';
 
 import 'react-tabs/style/react-tabs.css';
 import SocialMediaLoginModal from "./SocialMediaLoginModal";
+import ProfileImageModal from "./ProfileImageModal";
 
 function AdminPage() {
 
@@ -15,13 +16,11 @@ function AdminPage() {
 
     const [fbProfile, setFbProfile] = useState(null);
     useEffect(() => {
-        console.log(`Setting FB profile: ${JSON.stringify(fbProfile)}`);
         setFbProfile(fbProfile);
     }, [fbProfile]);
 
     const [fbPosts, setFbPosts] = useState(null);
     useEffect(() => {
-        console.log(`Setting FB pages: ${JSON.stringify(fbPosts)}`);
         setFbPosts(fbPosts);
     }, [fbPosts]);
 
@@ -81,23 +80,6 @@ function AdminPage() {
             });
 
     }, []);
-
-    // Get history by archive
-    // function groupByArchiveName(data) {
-    //     const result = new Map();
-    //
-    //     data.forEach(item => {
-    //         const name = item.archive?.id;
-    //         if (!name) return;
-    //
-    //         if (!result.has(name)) {
-    //             result.set(name, []);
-    //         }
-    //         result.get(name).push(item);
-    //     });
-    //
-    //     return result;
-    // }
 
     const [archiveHistory, setArchiveHistory] = useState(null);
     useEffect(() => {
@@ -195,12 +177,13 @@ function AdminPage() {
                             <table>
                                 <tbody>
                                 <tr>
-                                    <td><img alt='' src={'./generic-profile.png'}
-                                             style={{marginLeft: 4, marginRight: 10, width: 48, height: 48}}/></td>
+                                    <td><ProfileImageModal />
+                                    </td>
                                     <td>
                                         <div style={{
                                             fontSize: 24,
-                                            fontStyle: 'bold'
+                                            fontStyle: 'bold',
+                                            marginLeft: 10
                                         }}>{JSON.parse(localStorage.getItem('authToken')).userFullName}</div>
                                     </td>
                                 </tr>
@@ -210,28 +193,30 @@ function AdminPage() {
                     </header>
 
                     <section className="left-sidebar" style={{backgroundColor: '#F8FAF9'}}>
-                        <div style={{marginLeft: 20, fontSize: 16, fontWeight: 900}}><img src={'./storage_black_24dp.svg'} style={{marginRight: 10, width: 32, height: 32, verticalAlign: 'middle', textAlign: 'center'}}/>{BUILD_ENV.SERVICE_DOMAIN} ({archives ? archives.length : 0})</div>
+                        <div style={{marginLeft: 20, marginBottom: 12, fontSize: 18, fontWeight: 900}}>Archives</div>
                         {archives ? archives.map((item) => (
                             <div style={{marginLeft: 20}} key={item.id} onClick={() => {
                                 getArchiveInfo(item.id, item.name);
                                 }
                             }>
-                                <div style={{marginTop: 5, marginLeft: 6, flexDirection: 'column'}}>
+                                <div style={{marginTop: 5, marginLeft: 6, flexDirection: 'column', backgroundColor: selectedArchive?.archiveName === item.name? '#E9FCE9':  'white'}}>
                                     <div style={{display: 'inline-block'}}><img alt='repository' src={'./Database--Streamline-Solar.svg'} style={{ width:24, height: 24}}/>
                                     </div>
                                     <div style={{display: 'inline-block', verticalAlign: 'top', textAlign: 'center', marginTop: 2, marginLeft: 4}}>{item.name}</div>
                                 </div>
                             </div>
                         )) : 'Loading...'}
+                        <div style={{marginLeft: 20, borderWidth: 3, borderColor: 'black'}}><h4><img src={'./black-cat.png'} width={'20px'} height={'20px'}/>+ Add Archive</h4></div>
+
                     </section>
                     <main>
                         <div style={{marginLeft: 10, flexDirection: 'column'}}>
                             {selectedArchive ?
                                 <>
                                     <div style={{marginTop: 5, marginLeft: 6, flexDirection: 'column'}}>
-                                        <div style={{display: 'inline-block'}}><img alt='repository' src={'./vecteezy_database-icon-simple-design_53489038.jpg'} style={{ width:30, height: 30}}/>
+                                        <div style={{display: 'inline-block'}}><img alt='repository' src={'./vecteezy_database-icon-simple-design_53489038.jpg'} style={{ width:38, height: 38}}/>
                                         </div>
-                                        <div style={{display: 'inline-block', verticalAlign: 'top', textAlign: 'center', marginTop: 4, marginLeft: 4, fontSize: 18, fontWeight: 'bold'}}>{BUILD_ENV.SERVICE_DOMAIN} / {selectedArchive.archiveName}</div>
+                                        <div style={{display: 'inline-block', verticalAlign: 'top', textAlign: 'center', marginTop: 4, marginLeft: 4, fontSize: 24, fontWeight: 'bold'}}>{BUILD_ENV.SERVICE_DOMAIN} / {selectedArchive.archiveName}</div>
                                     </div>
                                     <div style={{marginLeft: 12, marginTop: 6}}>
                                         <hr/>
@@ -239,13 +224,13 @@ function AdminPage() {
                                             <img alt="Notes" src="./icons8-globe-64.png" width="24" height="24" />&nbsp;Accounts
                                         </div>
                                         <table>
-                                            <thead><tr><td><b>&nbsp;&nbsp;Account</b></td><td><b>Last Archived</b></td></tr></thead>
+                                            <thead><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>User Name</b></td><td><b>Last Archived</b></td></tr></thead>
                                             <tbody>
                                             { selectedArchive && archiveHistoryMap?.[selectedArchive.archiveId] ? archiveHistoryMap[selectedArchive.archiveId].map((rec) => {
                                                 return <tr key={rec.id}>
-                                                        <td><div style={{marginLeft: 10}}><img alt={rec.socialMediaPlatform} src={accountImageFinder(rec.socialMediaPlatform)} width="24" height="24" />&nbsp;{rec.socialMediaUsername}</div></td>
+                                                        <td><div style={{marginLeft: 30}}><img alt={rec.socialMediaPlatform} src={accountImageFinder(rec.socialMediaPlatform)} width="24" height="24" />&nbsp;{rec.socialMediaUsername}</div></td>
                                                         <td>{formatDate(rec.archiveDateCompleted)}</td>
-                                                        <td onClick={() => handleUpdateAccount(selectedArchivePosts.id, rec.socialMediaUsername)}><img alt='refresh' src={'./refresh.png' } style={{marginLeft: 10, width: 20, height: 20}}/>&nbsp;<b>Update</b></td>
+                                                        <td onClick={() => handleUpdateAccount(selectedArchivePosts.id, rec.socialMediaUsername)}><img alt='refresh' src={'./archive-now.png' } style={{marginLeft: 18, width: 26, height: 26}}/></td>
                                                         </tr>
                                                 }) :
                                                 <div style={{marginTop: 15, marginLeft: 10}}>No Archived Accounts.</div>
@@ -259,9 +244,9 @@ function AdminPage() {
                                         </div>
                                         <hr/>
                                         <div style={{display: 'flex', flexDirection: 'row', marginTop: 20, marginBottom: 10, fontSize: 18, fontWeight: 'bold'}}>
-                                            <img alt="Notes" src="./icons8-notes-32.png" width="24" height="24" />&nbsp;Posts ({selectedArchivePosts ? selectedArchivePosts.data.length: '0'})
+                                            <img alt="Notes" src="./icons8-notes-32.png" width="24" height="24" />&nbsp;Archived Posts ({selectedArchivePosts ? selectedArchivePosts.data.length: '0'})
                                         </div>
-                                        {selectedArchivePosts && selectedArchivePosts.data.length > 0 ? JSON.stringify(selectedArchivePosts) : 'No Posts.'
+                                        {selectedArchivePosts && selectedArchivePosts.data.length > 0 ? JSON.stringify(selectedArchivePosts) : 'No Archived Posts.'
                                         }
                                     </div>
                                 </> :
