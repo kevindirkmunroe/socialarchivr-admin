@@ -103,35 +103,58 @@ function AdminPage() {
     useEffect(() => {
         if (!archives || archives.length === 0) return;
 
-        const promises = archives.map((archive) =>
+        const uniqueArchives = Array.from(new Set(archives.map(a => a.id)))
+            .map(id => archives.find(a => a.id === id));
+
+        const promises = uniqueArchives.map((archive) =>
             axios.get(`http://${BUILD_ENV.SERVICE_DOMAIN}:${BUILD_ENV.SERVICE_PORT}/api/archives/${archive.id}/history`));
 
             Promise.all(promises)
                 .then((res) => {
-                    setArchiveHistory(res.map(r => r.data)); // ✅ just the data
-                    // setArchiveHistory(groupByArchiveName(res.data)); // ✅ just the data
-                })
+                    const allData = res.flatMap(r => r.data);
+
+                    // Deduplicate by 'id'
+                    const uniqueData = allData.filter(
+                        (item, index, self) => self.findIndex(t => t.id === item.id) === index
+                    );
+
+                    setArchiveHistory(uniqueData);                })
                 .catch((error) => {
                     console.log(`GET ARCHIVE ERROR: ${JSON.stringify(error)}`);
                 });
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [archives]);
 
-    let flatHistory = null;
-    let archiveHistoryMap = null;
-    if(archiveHistory) {
-        console.log(`ARCHIVE HISTORK 2 OK: ${JSON.stringify(archiveHistory)}`);
-        flatHistory = archiveHistory.flat().filter(Boolean);
-        // Group by archive name
-        archiveHistoryMap = flatHistory.reduce((acc, record) => {
-            const id = record.archive.id;
-            if (!acc[id]) {
-                acc[id] = [];
+
+    const [archiveHistoryMap, setArchiveHistoryMap] = useState({});
+    useEffect(() => {
+        if(archiveHistory) {
+
+            let flatHistory = [];
+            if (Array.isArray(archiveHistory)) {
+                // Flatten if needed
+                flatHistory = archiveHistory.flatMap(item => Array.isArray(item) ? item : [item]);
+
+                // Deduplicate by id
+                const uniqueHistory = flatHistory.filter(
+                    (item, index, self) =>
+                        item && self.findIndex(t => t.id === item.id) === index
+                );
+
+                // Group by archive ID
+                setArchiveHistoryMap(uniqueHistory.reduce((acc, record) => {
+                    const archiveId = record?.archive?.id;
+                    if (archiveId != null) {
+                        if (!acc[archiveId]) acc[archiveId] = [];
+                        acc[archiveId].push(record);
+                    }
+                    return acc;
+                }, {}));
+            } else {
+                console.warn("archiveHistory is not an array:", archiveHistory);
             }
-            acc[id].push(record);
-            return acc;
-        }, {});
-    }
+        }
+    }, [archiveHistory]);
 
     const handleUpdateAccount = (archiveName, mediaAccountUsername) => {
         alert(`Update archive ${archiveName} account ${mediaAccountUsername}!`);
@@ -218,11 +241,9 @@ function AdminPage() {
                                         <table>
                                             <thead><tr><td><b>&nbsp;&nbsp;Account</b></td><td><b>Last Archived</b></td></tr></thead>
                                             <tbody>
-                                                <tr>{JSON.stringify(archiveHistory)}</tr>
-                                            { selectedArchive && archiveHistoryMap[selectedArchive.archiveId] ? archiveHistoryMap[selectedArchive.archiveId].map((rec) => {
+                                            { selectedArchive && archiveHistoryMap?.[selectedArchive.archiveId] ? archiveHistoryMap[selectedArchive.archiveId].map((rec) => {
                                                 return <tr key={rec.id}>
-                                                        <td>{JSON.stringify(archiveHistory)}</td>
-                                                        <td><div style={{marginLeft: 10}}><img alt={rec.socialMediaAccount} src={accountImageFinder(rec.socialMediaAccount)} width="24" height="24" />&nbsp;{rec.socialMediaUsername}</div></td>
+                                                        <td><div style={{marginLeft: 10}}><img alt={rec.socialMediaPlatform} src={accountImageFinder(rec.socialMediaPlatform)} width="24" height="24" />&nbsp;{rec.socialMediaUsername}</div></td>
                                                         <td>{formatDate(rec.archiveDateCompleted)}</td>
                                                         <td onClick={() => handleUpdateAccount(selectedArchivePosts.id, rec.socialMediaUsername)}><img alt='refresh' src={'./refresh.png' } style={{marginLeft: 10, width: 20, height: 20}}/>&nbsp;<b>Update</b></td>
                                                         </tr>
