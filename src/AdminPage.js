@@ -7,7 +7,6 @@ import BUILD_ENV from './Environment';
 import 'react-tabs/style/react-tabs.css';
 import SocialMediaLoginModal from "./SocialMediaLoginModal";
 import ProfileImageModal from "./ProfileImageModal";
-
 function AdminPage() {
 
     const formatDate = (date) => {
@@ -111,7 +110,6 @@ function AdminPage() {
     const [archiveHistoryMap, setArchiveHistoryMap] = useState({});
     useEffect(() => {
         if(archiveHistory) {
-
             let flatHistory = [];
             if (Array.isArray(archiveHistory)) {
                 // Flatten if needed
@@ -138,8 +136,67 @@ function AdminPage() {
         }
     }, [archiveHistory]);
 
+    const [archiving, setArchiving] = useState(false)
+
+    async function startArchive(username, archiveId) {
+        setArchiving(true);
+
+        const res = await fetch(`http://${BUILD_ENV.SERVICE_DOMAIN}:${BUILD_ENV.SERVICE_PORT}/api/archives/job`, {
+            method: "POST",
+            body: JSON.stringify({ username, archiveId }),
+            headers: { "Content-Type": "application/json" }
+        });
+        const { jobId } = await res.json();
+        console.log(`JOB ID= ${JSON.stringify(jobId)}`);
+
+        let tries = 0;
+        const maxTries = 5;
+        const poll = setInterval(async () => {
+            tries++;
+            if (tries >= maxTries) {
+                clearInterval(poll);
+                alert(`Archive update of Username '${username}' failed after ${maxTries} tries!`);
+            }
+
+            const statusRes = await fetch(`http://${BUILD_ENV.SERVICE_DOMAIN}:${BUILD_ENV.SERVICE_PORT}/api/archives/job/${jobId}`);
+            const { status } = await statusRes.json();
+            if (status === "COMPLETE") {
+                clearInterval(poll);
+                alert("Archive done!");
+            } else if (status === "FAILED") {
+                clearInterval(poll);
+                alert("Archive failed.");
+            }
+        }, 3000);
+
+        setArchiving(false);
+    }
+
     const handleUpdateAccount = (archiveName, mediaAccountUsername) => {
-        alert(`Update archive ${archiveName} account ${mediaAccountUsername}!`);
+        axios.get(`http://${BUILD_ENV.SERVICE_DOMAIN}:${BUILD_ENV.SERVICE_PORT}/api/social-accounts/${archiveName}`)
+            .then(async res => {
+                    const match = res.data.find(
+                        acc => acc.username === mediaAccountUsername && acc.archiveId === archiveName
+                    );
+                    console.log(`MATCH=${JSON.stringify(match)}`);
+
+                    await startArchive(mediaAccountUsername, archiveName);
+                })
+                .catch((error) => {
+                    console.log(`UPDATE ACCOUNT BY username ERROR: ${JSON.stringify(error)}`);
+                });
+    }
+
+    const handleDeleteArchive = (archiveId) => {
+        alert(`TODO: delete archive ${archiveId}`);
+    }
+
+    const handleAddArchive = () => {
+        alert(`TODO: add new archive`);
+    }
+
+    const handleDeleteSocialMediaAccount = (account) => {
+        alert(`TODO: delete SM Account ${account}`);
     }
 
     const accountImageFinder = (accountType) => {
@@ -186,6 +243,11 @@ function AdminPage() {
                                             marginLeft: 10
                                         }}>{JSON.parse(localStorage.getItem('authToken')).userFullName}</div>
                                     </td>
+                                    <td>
+                                        <div style={{marginLeft: 200, width: '90%'}}>
+                                            <img alt="Notes" src="./social-archivr-banner-2.png" />
+                                        </div>
+                                    </td>
                                 </tr>
                                 </tbody>
                             </table>
@@ -193,21 +255,43 @@ function AdminPage() {
                     </header>
 
                     <section className="left-sidebar" style={{backgroundColor: '#F8FAF9'}}>
-                        <div style={{marginLeft: 20, marginBottom: 12, fontSize: 18, fontWeight: 900}}>Archives</div>
+                        <div style={{marginLeft: 20, marginBottom: 12, fontSize: 14, fontWeight: 900}}>Social Media Archives</div>
                         {archives ? archives.map((item) => (
                             <div style={{marginLeft: 20}} key={item.id} onClick={() => {
                                 getArchiveInfo(item.id, item.name);
                                 }
                             }>
-                                <div style={{marginTop: 5, marginLeft: 6, flexDirection: 'column', backgroundColor: selectedArchive?.archiveName === item.name? '#E9FCE9':  'white'}}>
-                                    <div style={{display: 'inline-block'}}><img alt='repository' src={'./Database--Streamline-Solar.svg'} style={{ width:24, height: 24}}/>
+                                <div
+                                    style={{
+                                        marginTop: 5,
+                                        marginLeft: 6,
+                                        display: 'flex',
+                                        flexDirection: 'row', // default, but make explicit
+                                        alignItems: 'center',
+                                        justifyContent: 'space-between',
+                                        backgroundColor: selectedArchive?.archiveName === item.name ? '#E9FCE9' : 'white',
+                                        width: '100%', // optional, ensures full width for justify-content to work
+                                    }}
+                                >
+                                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                                        <img
+                                            alt="repository"
+                                            src={'./Database--Streamline-Solar.svg'}
+                                            style={{ width: 24, height: 24 }}
+                                        />
+                                        <div style={{ marginLeft: 6 }}>{item.name}</div>
                                     </div>
-                                    <div style={{display: 'inline-block', verticalAlign: 'top', textAlign: 'center', marginTop: 2, marginLeft: 4}}>{item.name}</div>
+
+                                    <img
+                                        alt="delete"
+                                        src={'./icons8-trash-24.png'}
+                                        onClick={() => handleDeleteArchive(item.name)}
+                                        style={{ width: 16, height: 16, cursor: 'pointer' }}
+                                    />
                                 </div>
                             </div>
                         )) : 'Loading...'}
-                        <div style={{marginLeft: 20, borderWidth: 3, borderColor: 'black'}}><h4><img src={'./black-cat.png'} width={'20px'} height={'20px'}/>+ Add Archive</h4></div>
-
+                        <div onClick={() => handleAddArchive()}  style={{marginLeft: 20, borderWidth: 3, borderColor: 'black'}}><h4><img src={'./black-cat.png'} width={'20px'} height={'20px'}/>+ Add Archive</h4></div>
                     </section>
                     <main>
                         <div style={{marginLeft: 10, flexDirection: 'column'}}>
@@ -216,34 +300,42 @@ function AdminPage() {
                                     <div style={{marginTop: 5, marginLeft: 6, flexDirection: 'column'}}>
                                         <div style={{display: 'inline-block'}}><img alt='repository' src={'./vecteezy_database-icon-simple-design_53489038.jpg'} style={{ width:38, height: 38}}/>
                                         </div>
-                                        <div style={{display: 'inline-block', verticalAlign: 'top', textAlign: 'center', marginTop: 4, marginLeft: 4, fontSize: 24, fontWeight: 'bold'}}>{BUILD_ENV.SERVICE_DOMAIN} / {selectedArchive.archiveName}</div>
+                                        <div style={{display: 'inline-block', verticalAlign: 'top', textAlign: 'center', marginTop: 4, marginLeft: 4, fontSize: 24, fontWeight: 'bold'}}>{selectedArchive.archiveName} @ {BUILD_ENV.SERVICE_DOMAIN}</div>
                                     </div>
                                     <div style={{marginLeft: 12, marginTop: 6}}>
                                         <hr/>
-                                        <div style={{display: 'flex', flexDirection: 'row', marginTop: 20, marginBottom: 10, fontSize: 18, fontWeight: 'bold'}}>
-                                            <img alt="Notes" src="./icons8-globe-64.png" width="24" height="24" />&nbsp;Accounts
+                                        <div style={{display: 'flex', flexDirection: 'row', marginTop: 20, marginBottom: 10, fontSize: 14, fontWeight: 'bold'}}>
+                                            <img alt="Notes" src="./icons8-globe-64.png" width="24" height="24" />&nbsp;Archived Accounts
                                         </div>
                                         <table>
-                                            <thead><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>User Name</b></td><td><b>Last Archived</b></td></tr></thead>
+                                            <thead><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>User</b></td><td><b>Last Archived</b></td></tr></thead>
                                             <tbody>
                                             { selectedArchive && archiveHistoryMap?.[selectedArchive.archiveId] ? archiveHistoryMap[selectedArchive.archiveId].map((rec) => {
                                                 return <tr key={rec.id}>
                                                         <td><div style={{marginLeft: 30}}><img alt={rec.socialMediaPlatform} src={accountImageFinder(rec.socialMediaPlatform)} width="24" height="24" />&nbsp;{rec.socialMediaUsername}</div></td>
                                                         <td>{formatDate(rec.archiveDateCompleted)}</td>
                                                         <td onClick={() => handleUpdateAccount(selectedArchivePosts.id, rec.socialMediaUsername)}><img alt='refresh' src={'./archive-now.png' } style={{marginLeft: 18, width: 26, height: 26}}/></td>
+                                                        <td>
+                                                            <img
+                                                                alt="delete"
+                                                                onClick={() => handleDeleteSocialMediaAccount(rec.socialMediaUsername)}
+                                                                src={'./icons8-trash-24.png'}
+                                                                style={{ marginLeft: 6, width: 16, height: 16, cursor: 'pointer' }}
+                                                            />
+                                                        </td>
                                                         </tr>
                                                 }) :
                                                 <div style={{marginTop: 15, marginLeft: 10}}>No Archived Accounts.</div>
                                             }
                                             </tbody>
                                         </table>
-                                        <div style={{marginLeft: 20, borderWidth: 3, borderColor: 'black'}}><h4>+ Add Account</h4></div>
+                                        <div style={{marginLeft: 20, borderWidth: 3, borderColor: 'black'}}><h5>+ Add Account</h5></div>
                                         <div style={{display: 'flex', flexDirection: 'row'}}>
                                             <div style={{marginLeft: 20, borderRadius: 4, width: 50, height: 48}}><img alt='instagram' src={'./facebook-16x16-icon.png'} style={{width: 40, height: 40}} /></div>
                                             <div style={{marginLeft: 20, borderRadius: 4, backgroundColor: '#d62976', width: 40, height: 40}}><img alt='instagram' src={'./instagram-white.png'} style={{width: 40, height: 40}} /></div>
                                         </div>
                                         <hr/>
-                                        <div style={{display: 'flex', flexDirection: 'row', marginTop: 20, marginBottom: 10, fontSize: 18, fontWeight: 'bold'}}>
+                                        <div style={{display: 'flex', flexDirection: 'row', marginTop: 20, marginBottom: 10, fontSize: 14, fontWeight: 'bold'}}>
                                             <img alt="Notes" src="./icons8-notes-32.png" width="24" height="24" />&nbsp;Archived Posts ({selectedArchivePosts ? selectedArchivePosts.data.length: '0'})
                                         </div>
                                         {selectedArchivePosts && selectedArchivePosts.data.length > 0 ? JSON.stringify(selectedArchivePosts) : 'No Archived Posts.'

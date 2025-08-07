@@ -16,12 +16,9 @@ const ProfileImageModal = () => {
     return (
         <div className="text-center">
             { !preview && (
-                <button
-                    className="bg-blue-600 text-white px-4 py-2 rounded"
-                    onClick={() => setIsOpen(true)}
-                >
-                    Select Profile Image
-                </button>
+                <>
+                    <img alt="generic-profile-pic" src="./generic-profile.png" style={{width:  80, height: 80}} onClick={() => setIsOpen(true)}/>
+                </>
             )}
 
             {/* Preview thumbnail */}
@@ -35,6 +32,8 @@ const ProfileImageModal = () => {
                     />
                 </div>
             )}
+
+            <img onClick={() => setIsOpen(true)} alt="camera" src="./icons8-camera-50.png" style={{width:  20, height: 20}}/>
 
             {/* Modal */}
             {isOpen && (
