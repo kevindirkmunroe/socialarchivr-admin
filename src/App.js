@@ -6,11 +6,12 @@ import MainPage from "./MainPage";
 import AdminPage from "./AdminPage";
 import ProtectedRoute from "./ProtectedRoute";
 import './App.css';
+import SignupForm from "./SignupForm";
 
 function App() {
     return (
         <div>
-            <div style={{margin : 10, fontStyle: 'bold', color: 'green', float: 'left'}}>
+            <div style={{marginLeft : 10, fontStyle: 'bold', color: 'green', float: 'left'}}>
                 <table>
                     <tbody>
                         <tr><td><img src={'./black-cat.png'} width={'20px'} height={'20px'}/></td><td><h4>&nbsp;Social Archivr</h4></td></tr>

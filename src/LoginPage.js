@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import BUILD_ENV from './Environment';
+import FORM_STYLES from './FormStyles';
 
 const LoginPage = () => {
     const [email, setEmail] = useState("");
@@ -18,7 +19,7 @@ const LoginPage = () => {
         setErrorMessage("");
 
         // Example: Send to your backend
-        fetch(`http://${BUILD_ENV.SERVICE_DOMAIN}:${BUILD_ENV.SERVICE_PORT}/api/login`, {
+        fetch(`http://${BUILD_ENV.SERVICE_DOMAIN}:${BUILD_ENV.SERVICE_PORT}/api/users/login`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -42,75 +43,37 @@ const LoginPage = () => {
     };
 
     return (
-        <div style={styles.container}>
-            <form onSubmit={handleSubmit} style={styles.form}>
+        <div style={FORM_STYLES.container}>
+            <form onSubmit={handleSubmit} style={FORM_STYLES.form}>
                 <h2>Login</h2>
-                {errorMessage && <p style={styles.error}>{errorMessage}</p>}
-                <div style={styles.inputGroup}>
+                {errorMessage && <p style={FORM_STYLES.error}>{errorMessage}</p>}
+                <div style={FORM_STYLES.inputGroup}>
                     <label>Email</label>
                     <input
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        style={styles.input}
+                        style={FORM_STYLES.input}
                     />
                 </div>
-                <div style={styles.inputGroup}>
+                <div style={FORM_STYLES.inputGroup}>
                     <label>Password</label>
                     <input
                         type="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        style={styles.input}
+                        style={FORM_STYLES.input}
                     />
                 </div>
-                <button type="submit" style={styles.button}>
+                <button type="submit" style={FORM_STYLES.button}>
                     Log In
                 </button>
             </form>
+            <button onClick={() => alert('Sign up!')} style={{...FORM_STYLES.button, marginTop: 20, width: 300, background: 'green'}}>
+                Sign Up
+            </button>
         </div>
     );
-};
-
-const styles = {
-    container: {
-        display: "flex",
-        height: "100vh",
-        justifyContent: "center",
-        alignItems: "center",
-        background: "#f3f4f6",
-    },
-    form: {
-        background: "white",
-        padding: "2rem",
-        borderRadius: "8px",
-        boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-        width: "300px",
-    },
-    inputGroup: {
-        marginBottom: "1rem",
-    },
-    input: {
-        width: "100%",
-        padding: "0.5rem",
-        fontSize: "1rem",
-        borderRadius: "4px",
-        border: "1px solid #ccc",
-    },
-    button: {
-        width: "100%",
-        padding: "0.75rem",
-        background: "#2563eb",
-        color: "white",
-        fontSize: "1rem",
-        border: "none",
-        borderRadius: "4px",
-        cursor: "pointer",
-    },
-    error: {
-        color: "red",
-        marginBottom: "1rem",
-    },
 };
 
 export default LoginPage;
