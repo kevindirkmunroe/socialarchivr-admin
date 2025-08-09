@@ -1,7 +1,7 @@
 const FORM_STYLES = {
     container: {
         display: "flex",
-        height: "100vh",
+        height: "66vh",
         justifyContent: "center",
         flexDirection: "column",
         alignItems: "center",

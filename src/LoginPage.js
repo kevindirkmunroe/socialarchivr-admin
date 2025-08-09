@@ -1,8 +1,12 @@
 import React, { useState } from "react";
 import BUILD_ENV from './Environment';
 import FORM_STYLES from './FormStyles';
+import {Navigate, useNavigate} from "react-router-dom";
 
 const LoginPage = () => {
+
+    const navigate = useNavigate();
+
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
@@ -19,7 +23,7 @@ const LoginPage = () => {
         setErrorMessage("");
 
         // Example: Send to your backend
-        fetch(`http://${BUILD_ENV.SERVICE_DOMAIN}:${BUILD_ENV.SERVICE_PORT}/api/users/login`, {
+        fetch(`${BUILD_ENV.PROTOCOL}://${BUILD_ENV.SERVICE_DOMAIN}:${BUILD_ENV.SERVICE_PORT}/api/users/login`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -41,6 +45,10 @@ const LoginPage = () => {
                 setErrorMessage(err.message);
             });
     };
+
+    const handleSignup = () => {
+        return navigate("/signup");
+    }
 
     return (
         <div style={FORM_STYLES.container}>
@@ -69,7 +77,7 @@ const LoginPage = () => {
                     Log In
                 </button>
             </form>
-            <button onClick={() => alert('Sign up!')} style={{...FORM_STYLES.button, marginTop: 20, width: 300, background: 'green'}}>
+            <button onClick={() => handleSignup()} style={{...FORM_STYLES.button, marginTop: 20, width: 300, background: 'green'}}>
                 Sign Up
             </button>
         </div>

@@ -22,6 +22,7 @@ function App() {
             <BrowserRouter>
                 <Routes>
                     <Route path="/login" element={<LoginPage />} />
+                    <Route path="/signup" element={<SignupForm />} />
                     <Route path="/" element={<ProtectedRoute><AdminPage /></ProtectedRoute>} />
                     {/* Add more protected routes here */}
                 </Routes>

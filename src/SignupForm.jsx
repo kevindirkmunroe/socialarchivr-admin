@@ -1,4 +1,7 @@
 import React, { useState } from "react";
+import FORM_STYLES from "./FormStyles";
+import { useNavigate} from "react-router-dom";
+import BUILD_ENV from "./Environment";
 
 /**
  * SignupForm
@@ -6,6 +9,8 @@ import React, { useState } from "react";
  * - POSTs JSON to /api/signup  (adjust endpoint as needed)
  */
 export default function SignupForm() {
+    const navigate = useNavigate();
+
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName]   = useState("");
     const [email, setEmail]         = useState("");
@@ -25,6 +30,10 @@ export default function SignupForm() {
         isEmailValid(email) &&
         isPasswordValid(password);
 
+    const handleGotoLogin = () => {
+        navigate('/login');
+    }
+
     const handleSubmit = async (ev) => {
         ev.preventDefault();
         setError(null);
@@ -37,12 +46,12 @@ export default function SignupForm() {
 
         setLoading(true);
         try {
-            const res = await fetch("/api/signup", {
+            const res = await fetch(`${BUILD_ENV.PROTOCOL}://${BUILD_ENV.SERVICE_DOMAIN}:${BUILD_ENV.SERVICE_PORT}/api/users/signup`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    firstName: firstName.trim(),
-                    lastName: lastName.trim(),
+                    firstname: firstName.trim(),
+                    lastname: lastName.trim(),
                     email: email.trim().toLowerCase(),
                     password, // recommend hashing on server side / use HTTPS
                 }),
@@ -50,7 +59,7 @@ export default function SignupForm() {
 
             if (!res.ok) {
                 const body = await res.json().catch(() => ({}));
-                throw new Error(body.message || `Signup failed (${res.status})`);
+                throw new Error(`Uh Oh, Sign Up Failed! ${body.message || `(${res.status})`}`);
             }
 
             setSuccess("Signup successful! Please check your email to confirm your account.");
@@ -66,101 +75,104 @@ export default function SignupForm() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 p-6">
-            <div className="w-full max-w-md bg-white rounded-lg shadow-md p-6">
-                <h2 className="text-2xl font-semibold mb-4 text-center">Create an account</h2>
+        <>
+            <div style={{marginLeft: 200, width: '90%'}}>
+                <img alt="Notes" src="./social-archivr-banner-2.png" />
+            </div>
+            <div style={FORM_STYLES.container}>
+                <div className="w-full max-w-md bg-white rounded-lg shadow-md p-6">
+                    <h2 className="text-2xl font-semibold mb-4 text-center">Sign Up</h2>
 
-                {error && (
-                    <div className="mb-4 text-sm text-red-700 bg-red-100 p-2 rounded">
-                        {error}
-                    </div>
-                )}
+                    {error && (
+                        <div style={{color: "red", marginBottom: 12}}>
+                           {error}
+                        </div>
+                    )}
 
-                {success && (
-                    <div className="mb-4 text-sm text-green-800 bg-green-100 p-2 rounded">
-                        {success}
-                    </div>
-                )}
+                    {success && (
+                        <div style={{color: "green", margin: 4}}>
+                            {success}
+                        </div>
+                    )}
 
-                <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-                    <div className="flex gap-3">
-                        <div className="flex-1">
+                    <form onSubmit={handleSubmit} style={FORM_STYLES.form} noValidate>
+                        <div style={FORM_STYLES.inputGroup}>
                             <label className="block text-sm font-medium mb-1">First name</label>
                             <input
-                                className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                                style={FORM_STYLES.input}
                                 value={firstName}
                                 onChange={(e) => setFirstName(e.target.value)}
                                 placeholder="First"
                                 required
                             />
                         </div>
-                        <div className="flex-1">
+                        <div style={FORM_STYLES.inputGroup}>
                             <label className="block text-sm font-medium mb-1">Last name</label>
                             <input
-                                className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                                style={FORM_STYLES.input}
                                 value={lastName}
                                 onChange={(e) => setLastName(e.target.value)}
                                 placeholder="Last"
                                 required
                             />
                         </div>
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium mb-1">Email</label>
-                        <input
-                            type="email"
-                            className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            placeholder="you@example.com"
-                            required
-                        />
-                        {!isEmailValid(email) && email.length > 0 && (
-                            <p className="text-xs text-red-600 mt-1">Enter a valid email.</p>
-                        )}
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium mb-1">Password</label>
-                        <div className="relative">
+                        <div style={FORM_STYLES.inputGroup}>
+                            <label className="block text-sm font-medium mb-1">Email</label>
                             <input
-                                type={showPassword ? "text" : "password"}
-                                className="w-full border rounded px-3 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-300"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                placeholder="At least 8 characters"
+                                type="email"
+                                style={FORM_STYLES.input}
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                placeholder="you@example.com"
                                 required
                             />
-                            <button
-                                type="button"
-                                onClick={() => setShowPassword((s) => !s)}
-                                className="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-gray-600 hover:text-gray-900"
-                                aria-label={showPassword ? "Hide password" : "Show password"}
-                            >
-                                {showPassword ? "Hide" : "Show"}
-                            </button>
+                            {!isEmailValid(email) && email.length > 0 && (
+                                <p className="text-xs text-red-600 mt-1"><img style={{width: 18, height: 18, marginRight: 4}} alt="warning" src={"./icons8-warning-48.png"} />Enter a valid email.</p>
+                            )}
                         </div>
-                        {!isPasswordValid(password) && password.length > 0 && (
-                            <p className="text-xs text-red-600 mt-1">Password must be at least 8 characters.</p>
-                        )}
-                    </div>
+                        <div style={FORM_STYLES.inputGroup}>
+                            <label className="block text-sm font-medium mb-1">Password</label>
+                            <div className="relative">
+                                <input
+                                    type={showPassword ? "text" : "password"}
+                                    style={FORM_STYLES.input}
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    placeholder="At least 8 characters"
+                                    required
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword((s) => !s)}
+                                    style={{marginTop: 4}}
+                                    className="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-gray-600 hover:text-gray-900"
+                                    aria-label={showPassword ? "Hide password" : "Show password"}
+                                >
+                                    {showPassword ? "Hide" : "Show"}
+                                </button>
+                            </div>
+                            {!isPasswordValid(password) && password.length > 0 && (
+                                <p className="text-xs text-red-600 mt-1">
+                                    <img style={{width: 18, height: 18, marginRight: 4}} alt="warning" src={"./icons8-warning-48.png"} />Password must be at least 8 characters.</p>
+                            )}
+                        </div>
 
-                    <button
-                        disabled={!isFormValid() || loading}
-                        type="submit"
-                        className={`w-full py-2 rounded text-white font-medium ${
-                            !isFormValid() || loading ? "bg-blue-300 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"
-                        }`}
-                    >
-                        {loading ? "Signing up…" : "Sign up"}
-                    </button>
-                </form>
+                        <button
+                            disabled={!isFormValid() || loading}
+                            type="submit"
+                            style={{...FORM_STYLES.button,
+                                backgroundColor: isFormValid() ? "#4CAF50" : "#ccc",
+                                cursor: isFormValid() ? "pointer" : "not-allowed"}}>
+                            {loading ? "Signing up…" : "Sign up"}
+                        </button>
+                        <div onClick={() => handleGotoLogin()} style={{marginTop: 6, fontSize: 14, color: 'green', cursor: 'pointer'}}>Back To Login</div>
+                    </form>
 
-                <p className="text-xs text-gray-500 mt-4 text-center">
-                    By continuing, you agree to our terms and privacy policy.
-                </p>
+                    <p className="text-xs text-gray-400 mt-4 text-center">
+                        By continuing, you agree to our terms and privacy policy.
+                    </p>
+                </div>
             </div>
-        </div>
+        </>
     );
 }

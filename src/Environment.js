@@ -3,6 +3,7 @@ const localProcessEnv =
         WEB_DOMAIN : 'localhost',
         SERVICE_DOMAIN: 'localhost',
         VIEWER_DOMAIN: 'localhost',
+        PROTOCOL: 'http',
         SERVICE_PORT: 8080};
 
 const BUILD_ENV = process.env.REACT_APP_BUILD_ENV || localProcessEnv;

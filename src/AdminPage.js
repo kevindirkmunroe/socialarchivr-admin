@@ -50,7 +50,7 @@ function AdminPage() {
     }, [socialAccounts]);
 
     const getArchiveInfo = (archiveId, archiveName) => {
-        axios.get(`http://${BUILD_ENV.SERVICE_DOMAIN}:${BUILD_ENV.SERVICE_PORT}/api/archives/${archiveId}/posts`)
+        axios.get(`${BUILD_ENV.PROTOCOL}://${BUILD_ENV.SERVICE_DOMAIN}:${BUILD_ENV.SERVICE_PORT}/api/archives/${archiveId}/posts`)
             .then(res => {
                 setSelectedArchive({archiveId, archiveName});
                 setSelectedArchivePosts({id: archiveId, data: res.data});
@@ -70,7 +70,7 @@ function AdminPage() {
     const [archives, setArchives] = useState(null);
     useEffect(() => {
         const socialArchivrUserId = JSON.parse(localStorage.getItem('authToken')).userId;
-        axios.get(`http://${BUILD_ENV.SERVICE_DOMAIN}:${BUILD_ENV.SERVICE_PORT}/api/archives/user/${socialArchivrUserId}`)
+        axios.get(`${BUILD_ENV.PROTOCOL}://${BUILD_ENV.SERVICE_DOMAIN}:${BUILD_ENV.SERVICE_PORT}/api/archives/user/${socialArchivrUserId}`)
             .then(res => {
                 setArchives(res.data);
             })
@@ -88,7 +88,7 @@ function AdminPage() {
             .map(id => archives.find(a => a.id === id));
 
         const promises = uniqueArchives.map((archive) =>
-            axios.get(`http://${BUILD_ENV.SERVICE_DOMAIN}:${BUILD_ENV.SERVICE_PORT}/api/archives/${archive.id}/history`));
+            axios.get(`${BUILD_ENV.PROTOCOL}://${BUILD_ENV.SERVICE_DOMAIN}:${BUILD_ENV.SERVICE_PORT}/api/archives/${archive.id}/history`));
 
             Promise.all(promises)
                 .then((res) => {
@@ -141,7 +141,7 @@ function AdminPage() {
     async function startArchive(username, archiveId) {
         setArchiving(true);
 
-        const res = await fetch(`http://${BUILD_ENV.SERVICE_DOMAIN}:${BUILD_ENV.SERVICE_PORT}/api/archives/job`, {
+        const res = await fetch(`${BUILD_ENV.PROTOCOL}://${BUILD_ENV.SERVICE_DOMAIN}:${BUILD_ENV.SERVICE_PORT}/api/archives/job`, {
             method: "POST",
             body: JSON.stringify({ username, archiveId }),
             headers: { "Content-Type": "application/json" }
@@ -158,7 +158,7 @@ function AdminPage() {
                 alert(`Archive update of Username '${username}' failed after ${maxTries} tries!`);
             }
 
-            const statusRes = await fetch(`http://${BUILD_ENV.SERVICE_DOMAIN}:${BUILD_ENV.SERVICE_PORT}/api/archives/job/${jobId}`);
+            const statusRes = await fetch(`${BUILD_ENV.PROTOCOL}://${BUILD_ENV.SERVICE_DOMAIN}:${BUILD_ENV.SERVICE_PORT}/api/archives/job/${jobId}`);
             const { status } = await statusRes.json();
             if (status === "COMPLETE") {
                 clearInterval(poll);
@@ -173,7 +173,7 @@ function AdminPage() {
     }
 
     const handleUpdateAccount = (archiveName, mediaAccountUsername) => {
-        axios.get(`http://${BUILD_ENV.SERVICE_DOMAIN}:${BUILD_ENV.SERVICE_PORT}/api/social-accounts/${archiveName}`)
+        axios.get(`${BUILD_ENV.PROTOCOL}://${BUILD_ENV.SERVICE_DOMAIN}:${BUILD_ENV.SERVICE_PORT}/api/social-accounts/${archiveName}`)
             .then(async res => {
                     const match = res.data.find(
                         acc => acc.username === mediaAccountUsername && acc.archiveId === archiveName
