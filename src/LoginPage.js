@@ -51,36 +51,41 @@ const LoginPage = () => {
     }
 
     return (
-        <div style={FORM_STYLES.container}>
-            <form onSubmit={handleSubmit} style={FORM_STYLES.form}>
-                <h2>Login</h2>
-                {errorMessage && <p style={FORM_STYLES.error}>{errorMessage}</p>}
-                <div style={FORM_STYLES.inputGroup}>
-                    <label>Email</label>
-                    <input
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        style={FORM_STYLES.input}
-                    />
-                </div>
-                <div style={FORM_STYLES.inputGroup}>
-                    <label>Password</label>
-                    <input
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        style={FORM_STYLES.input}
-                    />
-                </div>
-                <button type="submit" style={FORM_STYLES.button}>
-                    Log In
+        <>
+            <div style={{marginLeft: 200, width: '90%'}}>
+                <img alt="Notes" src="./social-archivr-banner-2.png" />
+            </div>
+            <div style={FORM_STYLES.container}>
+                <form onSubmit={handleSubmit} style={FORM_STYLES.form}>
+                    <h2>Login</h2>
+                    {errorMessage && <p style={FORM_STYLES.error}>{errorMessage}</p>}
+                    <div style={FORM_STYLES.inputGroup}>
+                        <label>Email</label>
+                        <input
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            style={FORM_STYLES.input}
+                        />
+                    </div>
+                    <div style={FORM_STYLES.inputGroup}>
+                        <label>Password</label>
+                        <input
+                            type="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            style={FORM_STYLES.input}
+                        />
+                    </div>
+                    <button type="submit" style={FORM_STYLES.button}>
+                        Log In
+                    </button>
+                </form>
+                <button onClick={() => handleSignup()} style={{...FORM_STYLES.button, marginTop: 20, width: 300, background: 'green'}}>
+                    Sign Up
                 </button>
-            </form>
-            <button onClick={() => handleSignup()} style={{...FORM_STYLES.button, marginTop: 20, width: 300, background: 'green'}}>
-                Sign Up
-            </button>
-        </div>
+            </div>
+        </>
     );
 };
 
