@@ -64,6 +64,7 @@ function AdminPage() {
     // Page Load:
     //   get the user's archives
     //   for each archive, get that archive's history- Last updated per account
+    //    get user's profile pic (if exists)
     //
 
     // Get archives by user...
@@ -135,6 +136,19 @@ function AdminPage() {
             }
         }
     }, [archiveHistory]);
+
+    async function loadProfileImage(userId) {
+        const response = await fetch(`${BUILD_ENV.PROTOCOL}://${BUILD_ENV.SERVICE_DOMAIN}:${BUILD_ENV.SERVICE_PORT}/api/users/${userId}/profile-image`);
+        const blob = await response.blob();
+        return URL.createObjectURL(blob);
+    }
+
+    const [userProfileImageUrl, setUserProfileImageUrl] = useState(null);
+    useEffect(() => {
+        const userId = JSON.parse(localStorage.getItem('authToken')).userId;
+        loadProfileImage(userId).then(setUserProfileImageUrl);
+    }, []);
+
 
     const [archiving, setArchiving] = useState(false)
 
@@ -234,7 +248,7 @@ function AdminPage() {
                             <table>
                                 <tbody>
                                 <tr>
-                                    <td><ProfileImageModal />
+                                    <td><ProfileImageModal savedImage={userProfileImageUrl}/>
                                     </td>
                                     <td>
                                         <div style={{
@@ -297,12 +311,12 @@ function AdminPage() {
                         <div style={{marginLeft: 10, flexDirection: 'column'}}>
                             {selectedArchive ?
                                 <>
-                                    <div style={{marginTop: 5, marginLeft: 6, flexDirection: 'column', backgroundColor: '#E9FCE9', height: 40}}>
-                                        <div style={{display: 'inline-block', verticalAlign: 'top', textAlign: 'center', marginTop: 4, marginLeft: 8, fontSize: 24, fontWeight: 'bold'}}>{selectedArchive.archiveName} @ {BUILD_ENV.SERVICE_DOMAIN}</div>
+                                    <div style={{marginTop: 5, marginLeft: 6, flexDirection: 'column', backgroundColor: '#F8FAF9', height: 40, borderStyle: 'solid', borderWidth: 2, borderRadius: 10, borderColor: 'lightGray'}}>
+                                        <div style={{display: 'inline-block', verticalAlign: 'top', textAlign: 'center', marginTop: 4, marginLeft: 12, fontSize: 24, fontWeight: 'bold'}}>{selectedArchive.archiveName}</div>
                                     </div>
                                     <div style={{marginLeft: 12, marginTop: 6}}>
                                         <div style={{display: 'flex', flexDirection: 'row', marginTop: 20, marginBottom: 10, fontSize: 14, fontWeight: 'bold'}}>
-                                            &nbsp;Archived Accounts
+                                            &nbsp;Archived Accounts ({ selectedArchive && archiveHistoryMap?.[selectedArchive.archiveId] ? archiveHistoryMap[selectedArchive.archiveId].length : 0})
                                         </div>
                                         <table>
                                             <thead><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>User</b></td><td><b>Last Archived</b></td></tr></thead>

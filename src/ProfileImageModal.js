@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
 import Avatar from 'react-avatar-edit'
 
-const ProfileImageModal = () => {
+const ProfileImageModal = (userProfileImageUrl) => {
     const [isOpen, setIsOpen] = useState(false)
-    const [preview, setPreview] = useState(null)
+    const [preview, setPreview] = useState(userProfileImageUrl)
 
     const handleCrop = (view) => setPreview(view)
     const handleClose = () => setPreview(null)
