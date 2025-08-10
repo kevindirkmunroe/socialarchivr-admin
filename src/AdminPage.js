@@ -297,15 +297,12 @@ function AdminPage() {
                         <div style={{marginLeft: 10, flexDirection: 'column'}}>
                             {selectedArchive ?
                                 <>
-                                    <div style={{marginTop: 5, marginLeft: 6, flexDirection: 'column'}}>
-                                        <div style={{display: 'inline-block'}}><img alt='repository' src={'./vecteezy_database-icon-simple-design_53489038.jpg'} style={{ width:38, height: 38}}/>
-                                        </div>
-                                        <div style={{display: 'inline-block', verticalAlign: 'top', textAlign: 'center', marginTop: 4, marginLeft: 4, fontSize: 24, fontWeight: 'bold'}}>{selectedArchive.archiveName} @ {BUILD_ENV.SERVICE_DOMAIN}</div>
+                                    <div style={{marginTop: 5, marginLeft: 6, flexDirection: 'column', backgroundColor: '#E9FCE9', height: 40}}>
+                                        <div style={{display: 'inline-block', verticalAlign: 'top', textAlign: 'center', marginTop: 4, marginLeft: 8, fontSize: 24, fontWeight: 'bold'}}>{selectedArchive.archiveName} @ {BUILD_ENV.SERVICE_DOMAIN}</div>
                                     </div>
                                     <div style={{marginLeft: 12, marginTop: 6}}>
-                                        <hr/>
                                         <div style={{display: 'flex', flexDirection: 'row', marginTop: 20, marginBottom: 10, fontSize: 14, fontWeight: 'bold'}}>
-                                            <img alt="Notes" src="./icons8-globe-64.png" width="24" height="24" />&nbsp;Archived Accounts
+                                            &nbsp;Archived Accounts
                                         </div>
                                         <table>
                                             <thead><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>User</b></td><td><b>Last Archived</b></td></tr></thead>
@@ -336,7 +333,7 @@ function AdminPage() {
                                         </div>
                                         <hr/>
                                         <div style={{display: 'flex', flexDirection: 'row', marginTop: 20, marginBottom: 10, fontSize: 14, fontWeight: 'bold'}}>
-                                            <img alt="Notes" src="./icons8-notes-32.png" width="24" height="24" />&nbsp;Archived Posts ({selectedArchivePosts ? selectedArchivePosts.data.length: '0'})
+                                            &nbsp;Archived Posts ({selectedArchivePosts ? selectedArchivePosts.data.length: '0'})
                                         </div>
                                         {selectedArchivePosts && selectedArchivePosts.data.length > 0 ? JSON.stringify(selectedArchivePosts) : 'No Archived Posts.'
                                         }
