@@ -137,18 +137,15 @@ function AdminPage() {
         }
     }, [archiveHistory]);
 
-    async function loadProfileImage(userId) {
-        const response = await fetch(`${BUILD_ENV.PROTOCOL}://${BUILD_ENV.SERVICE_DOMAIN}:${BUILD_ENV.SERVICE_PORT}/api/users/${userId}/profile-image`);
-        const blob = await response.blob();
-        return URL.createObjectURL(blob);
-    }
-
     const [userProfileImageUrl, setUserProfileImageUrl] = useState(null);
-    useEffect(() => {
+    useEffect(() =>  {
         const userId = JSON.parse(localStorage.getItem('authToken')).userId;
-        loadProfileImage(userId).then(setUserProfileImageUrl);
+        fetch(`${BUILD_ENV.PROTOCOL}://${BUILD_ENV.SERVICE_DOMAIN}:${BUILD_ENV.SERVICE_PORT}/api/users/${userId}/profile-image`)
+            .then(res => res.blob())
+            .then(blob => {
+                setUserProfileImageUrl(URL.createObjectURL(blob));
+            });
     }, []);
-
 
     const [archiving, setArchiving] = useState(false)
 
