@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import BUILD_ENV from './Environment';
 import FORM_STYLES from './FormStyles';
-import {Navigate, useNavigate} from "react-router-dom";
+import {useNavigate} from "react-router-dom";
 
 const LoginPage = () => {
 
@@ -32,7 +32,7 @@ const LoginPage = () => {
         })
             .then(res => {
                 if (!res.ok) {
-                    throw new Error("Invalid credentials for \'" + email + "\'");
+                    throw new Error("Invalid credentials for '" + email + "'");
                 }
                 return res.json();
             })

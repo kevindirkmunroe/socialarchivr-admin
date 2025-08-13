@@ -214,10 +214,8 @@ function AdminPage() {
         switch (accountType){
             case 'FACEBOOK':
                 return "./facebook-black.png";
-                break;
             case 'INSTAGRAM':
                 return "./black-instagram-logo-3497.png";
-                break;
             default:
                 break;
         }
@@ -245,7 +243,7 @@ function AdminPage() {
                             <table>
                                 <tbody>
                                 <tr>
-                                    <td><ProfileImageModal savedImage={userProfileImageUrl}/>
+                                    <td><ProfileImageModal savedImage={userProfileImageUrl} />
                                     </td>
                                     <td>
                                         <div style={{
@@ -302,18 +300,18 @@ function AdminPage() {
                                 </div>
                             </div>
                         )) : 'Loading...'}
-                        <div onClick={() => handleAddArchive()}  style={{marginLeft: 20, borderWidth: 3, borderColor: 'black'}}><h4><img src={'./black-cat.png'} width={'20px'} height={'20px'}/>+ Add Archive</h4></div>
+                        <div onClick={() => handleAddArchive()}  style={{marginLeft: 20, borderWidth: 3, borderColor: 'black'}}><h4><img alt="logo" src={'./black-cat.png'} width={'20px'} height={'20px'}/>+ Add Archive</h4></div>
                     </section>
                     <main>
                         <div style={{marginLeft: 10, flexDirection: 'column'}}>
                             {selectedArchive ?
                                 <>
-                                    <div style={{marginTop: 5, marginLeft: 6, flexDirection: 'column', backgroundColor: '#F8FAF9', height: 40, borderStyle: 'solid', borderWidth: 2, borderRadius: 10, borderColor: 'lightGray'}}>
+                                    <div style={{marginLeft: 6, flexDirection: 'column', backgroundColor: '#F8FAF9', height: 40, borderStyle: 'solid', borderWidth: 2, borderRadius: 10, borderColor: 'lightGray'}}>
                                         <div style={{display: 'inline-block', verticalAlign: 'top', textAlign: 'center', marginTop: 4, marginLeft: 12, fontSize: 24, fontWeight: 'bold'}}>{selectedArchive.archiveName}</div>
                                     </div>
                                     <div style={{marginLeft: 12, marginTop: 6}}>
                                         <div style={{display: 'flex', flexDirection: 'row', marginTop: 20, marginBottom: 10, fontSize: 14, fontWeight: 'bold'}}>
-                                            &nbsp;Archived Accounts ({ selectedArchive && archiveHistoryMap?.[selectedArchive.archiveId] ? archiveHistoryMap[selectedArchive.archiveId].length : 0})
+                                            &nbsp;Accounts ({ selectedArchive && archiveHistoryMap?.[selectedArchive.archiveId] ? archiveHistoryMap[selectedArchive.archiveId].length : 0})
                                         </div>
                                         <table>
                                             <thead><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>User</b></td><td><b>Last Archived</b></td></tr></thead>
@@ -344,7 +342,7 @@ function AdminPage() {
                                         </div>
                                         <hr/>
                                         <div style={{display: 'flex', flexDirection: 'row', marginTop: 20, marginBottom: 10, fontSize: 14, fontWeight: 'bold'}}>
-                                            &nbsp;Archived Posts ({selectedArchivePosts ? selectedArchivePosts.data.length: '0'})
+                                            &nbsp;Posts ({selectedArchivePosts ? selectedArchivePosts.data.length: '0'})
                                         </div>
                                         {selectedArchivePosts && selectedArchivePosts.data.length > 0 ? JSON.stringify(selectedArchivePosts) : 'No Archived Posts.'
                                         }
