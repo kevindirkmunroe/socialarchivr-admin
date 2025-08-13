@@ -10,10 +10,12 @@ import SignupForm from "./SignupForm";
 function App() {
     return (
         <div>
-            <div style={{marginLeft : 10, fontStyle: 'bold', color: 'green', float: 'left'}}>
+            <div style={{marginLeft : 10, fontStyle: 'bold', color: 'green', float: 'left', flexDirection: 'column'}}>
                 <table>
                     <tbody>
-                        <tr><td><img alt="logo" src={'./black-cat.png'} width={'20px'} height={'20px'}/></td><td><h4>&nbsp;Social Archivr</h4></td></tr>
+                        <tr><td><img alt="logo" src={'./black-cat.png'} width={'20px'} height={'20px'}/></td><td><h4>&nbsp;Social Archivr</h4></td>
+                            <td style={{display: 'block', marginLeft: 60}}><img alt="banner" src="./social-archivr-banner-alt.png" /></td>
+                        </tr>
                     </tbody>
                 </table>
             </div>

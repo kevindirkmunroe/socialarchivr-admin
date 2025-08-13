@@ -167,8 +167,8 @@ main {
 
 footer {
   grid-column: 1 / 4;
-  background-color: darkgreen;
   color: white;
+  padding-bottom: 0;
 }
 
 .hashtag:hover {

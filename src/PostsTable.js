@@ -3,7 +3,7 @@ import {accountImageFinder} from "./Utils";
 
 export default function PostsTable({ data }) {
     return (
-        <div style={{ maxHeight: "200px", overflowY: "auto", border: "1px solid #ddd" }}>
+        <div style={{ maxHeight: "300px", overflowY: "auto", border: "1px solid #ddd" }}>
                 <table style={{ borderCollapse: "collapse", width: "100%" }}>
                 <thead style={{ position: "sticky", top: 0, background: "#f9f9f9", zIndex: 1 }}>
                     <tr>

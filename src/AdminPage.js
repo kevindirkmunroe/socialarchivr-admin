@@ -1,18 +1,13 @@
 import axios from 'axios';
 import {useState, useEffect} from "react";
-import { format } from 'date-fns';
-import { enUS } from 'date-fns/locale';
 import BUILD_ENV from './Environment';
 
 import 'react-tabs/style/react-tabs.css';
 import SocialMediaLoginModal from "./SocialMediaLoginModal";
 import ProfileImageModal from "./ProfileImageModal";
 import PostsTable from "./PostsTable";
+import {accountImageFinder, formatDate} from "./Utils";
 function AdminPage() {
-
-    const formatDate = (date) => {
-        return format(date, "EEEE MMMM do h:mmaaa", { locale: enUS });
-    }
 
     const [fbProfile, setFbProfile] = useState(null);
     useEffect(() => {
@@ -199,27 +194,12 @@ function AdminPage() {
                 });
     }
 
-    const handleDeleteArchive = (archiveId) => {
-        alert(`TODO: delete archive ${archiveId}`);
-    }
-
     const handleAddArchive = () => {
         alert(`TODO: add new archive`);
     }
 
     const handleDeleteSocialMediaAccount = (account) => {
         alert(`TODO: delete SM Account ${account}`);
-    }
-
-    const accountImageFinder = (accountType) => {
-        switch (accountType){
-            case 'FACEBOOK':
-                return "./facebook-black.png";
-            case 'INSTAGRAM':
-                return "./black-instagram-logo-3497.png";
-            default:
-                break;
-        }
     }
 
     const [showLogin, setShowLogin] = useState(false);
@@ -240,6 +220,8 @@ function AdminPage() {
             <div>
                 <div className="parent">
                     <header>
+                    </header>
+                    <section className="left-sidebar" style={{backgroundColor: '#F8FAF9'}}>
                         <div className="child">
                             <table>
                                 <tbody>
@@ -253,19 +235,11 @@ function AdminPage() {
                                             marginLeft: 10
                                         }}>{JSON.parse(localStorage.getItem('authToken')).userFullName}</div>
                                     </td>
-                                    <td>
-                                        <div style={{marginLeft: 20, width: '90%'}}>
-                                            <img alt="Notes" src="./social-archivr-banner-alt.png" />
-                                        </div>
-                                    </td>
                                 </tr>
                                 </tbody>
                             </table>
                         </div>
-                    </header>
-
-                    <section className="left-sidebar" style={{backgroundColor: '#F8FAF9'}}>
-                        <div style={{marginLeft: 20, marginBottom: 12, fontSize: 14, fontWeight: 900}}>Archives</div>
+                        <div style={{marginLeft: 10, paddingTop: 8, marginBottom: 12, fontSize: 14, fontWeight: 900, borderColor: '#ccc', borderTopStyle: 'solid', borderTopWidth: 1}}>Archives</div>
                         {archives ? archives.map((item) => (
                             <div style={{marginLeft: 20}} key={item.id} onClick={() => {
                                 getArchiveInfo(item.id, item.name);
@@ -291,13 +265,6 @@ function AdminPage() {
                                         />
                                         <div style={{ marginLeft: 6 }}>{item.name}</div>
                                     </div>
-
-                                    <img
-                                        alt="delete"
-                                        src={'./icons8-trash-24.png'}
-                                        onClick={() => handleDeleteArchive(item.name)}
-                                        style={{ width: 16, height: 16, cursor: 'pointer' }}
-                                    />
                                 </div>
                             </div>
                         )) : 'Loading...'}
@@ -321,7 +288,7 @@ function AdminPage() {
                                                 return <tr key={rec.id}>
                                                         <td><div style={{marginLeft: 30}}><img alt={rec.socialMediaPlatform} src={accountImageFinder(rec.socialMediaPlatform)} width="24" height="24" />&nbsp;{rec.socialMediaUsername}</div></td>
                                                         <td>{formatDate(rec.archiveDateCompleted)}</td>
-                                                        <td onClick={() => handleUpdateAccount(selectedArchivePosts.id, rec.socialMediaUsername)}><img alt='refresh' src={'./archive-now.png' } style={{marginLeft: 18, width: 26, height: 26}}/></td>
+                                                        <td onClick={() => handleUpdateAccount(selectedArchivePosts.id, rec.socialMediaUsername)}><img alt='refresh' src={'./archive-now.png' } style={{marginLeft: 18, width: 26, height: 26, cursor: 'pointer' }}/></td>
                                                         <td>
                                                             <img
                                                                 alt="delete"
@@ -336,10 +303,10 @@ function AdminPage() {
                                             }
                                             </tbody>
                                         </table>
-                                        <div style={{marginLeft: 20, borderWidth: 3, borderColor: 'black'}}><h5>+ Add Account</h5></div>
-                                        <div style={{display: 'flex', flexDirection: 'row'}}>
-                                            <div style={{marginLeft: 20, borderRadius: 4, width: 28, height: 28}}><img alt='instagram' src={'./facebook-16x16-icon.png'} style={{width: 28, height: 28}} /></div>
-                                            <div style={{marginLeft: 20, borderRadius: 4, backgroundColor: '#d62976', width: 28, height: 28}}><img alt='instagram' src={'./instagram-white.png'} style={{width: 28, height: 28}} /></div>
+
+                                        <div style={{display: 'flex', flexDirection: 'row', marginTop: 6, borderColor: '#ccc', borderTopStyle: 'solid', borderTopWidth: 1}}>
+                                            <div style={{marginLeft: 32, marginTop: 6, borderRadius: 4, width: 28, height: 28}}><img alt='instagram' src={'./facebook-16x16-icon.png'} style={{width: 28, height: 28}} /></div>
+                                            <div style={{marginLeft: 8, marginTop: 6, borderRadius: 4, backgroundColor: '#d62976', width: 28, height: 28}}><img alt='instagram' src={'./instagram-white.png'} style={{width: 28, height: 28}} /></div>
                                         </div>
                                         <hr/>
                                         <div style={{display: 'flex', flexDirection: 'row', marginTop: 20, marginBottom: 10, fontSize: 14, fontWeight: 'bold'}}>
