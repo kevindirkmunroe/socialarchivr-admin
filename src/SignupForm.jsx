@@ -77,7 +77,7 @@ export default function SignupForm() {
     return (
         <>
             <div style={{marginLeft: 200, width: '90%'}}>
-                <img alt="Notes" src="./social-archivr-banner-2.png" />
+                <img alt="Notes" src="./social-archivr-banner-alt.png" />
             </div>
             <div style={FORM_STYLES.container}>
                 <div className="w-full max-w-md bg-white rounded-lg shadow-md p-6">

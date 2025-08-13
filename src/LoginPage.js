@@ -53,7 +53,7 @@ const LoginPage = () => {
     return (
         <>
             <div style={{marginLeft: 200, width: '90%'}}>
-                <img alt="Notes" src="./social-archivr-banner-2.png" />
+                <img alt="Notes" src="./social-archivr-banner-alt.png" />
             </div>
             <div style={FORM_STYLES.container}>
                 <form onSubmit={handleSubmit} style={FORM_STYLES.form}>

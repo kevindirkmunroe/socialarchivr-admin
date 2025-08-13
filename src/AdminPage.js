@@ -7,6 +7,7 @@ import BUILD_ENV from './Environment';
 import 'react-tabs/style/react-tabs.css';
 import SocialMediaLoginModal from "./SocialMediaLoginModal";
 import ProfileImageModal from "./ProfileImageModal";
+import PostsTable from "./PostsTable";
 function AdminPage() {
 
     const formatDate = (date) => {
@@ -247,14 +248,14 @@ function AdminPage() {
                                     </td>
                                     <td>
                                         <div style={{
-                                            fontSize: 24,
+                                            fontSize: 16,
                                             fontStyle: 'bold',
                                             marginLeft: 10
                                         }}>{JSON.parse(localStorage.getItem('authToken')).userFullName}</div>
                                     </td>
                                     <td>
-                                        <div style={{marginLeft: 200, width: '90%'}}>
-                                            <img alt="Notes" src="./social-archivr-banner-2.png" />
+                                        <div style={{marginLeft: 20, width: '90%'}}>
+                                            <img alt="Notes" src="./social-archivr-banner-alt.png" />
                                         </div>
                                     </td>
                                 </tr>
@@ -264,7 +265,7 @@ function AdminPage() {
                     </header>
 
                     <section className="left-sidebar" style={{backgroundColor: '#F8FAF9'}}>
-                        <div style={{marginLeft: 20, marginBottom: 12, fontSize: 14, fontWeight: 900}}>Social Media Archives</div>
+                        <div style={{marginLeft: 20, marginBottom: 12, fontSize: 14, fontWeight: 900}}>Archives</div>
                         {archives ? archives.map((item) => (
                             <div style={{marginLeft: 20}} key={item.id} onClick={() => {
                                 getArchiveInfo(item.id, item.name);
@@ -337,14 +338,14 @@ function AdminPage() {
                                         </table>
                                         <div style={{marginLeft: 20, borderWidth: 3, borderColor: 'black'}}><h5>+ Add Account</h5></div>
                                         <div style={{display: 'flex', flexDirection: 'row'}}>
-                                            <div style={{marginLeft: 20, borderRadius: 4, width: 50, height: 48}}><img alt='instagram' src={'./facebook-16x16-icon.png'} style={{width: 40, height: 40}} /></div>
-                                            <div style={{marginLeft: 20, borderRadius: 4, backgroundColor: '#d62976', width: 40, height: 40}}><img alt='instagram' src={'./instagram-white.png'} style={{width: 40, height: 40}} /></div>
+                                            <div style={{marginLeft: 20, borderRadius: 4, width: 28, height: 28}}><img alt='instagram' src={'./facebook-16x16-icon.png'} style={{width: 28, height: 28}} /></div>
+                                            <div style={{marginLeft: 20, borderRadius: 4, backgroundColor: '#d62976', width: 28, height: 28}}><img alt='instagram' src={'./instagram-white.png'} style={{width: 28, height: 28}} /></div>
                                         </div>
                                         <hr/>
                                         <div style={{display: 'flex', flexDirection: 'row', marginTop: 20, marginBottom: 10, fontSize: 14, fontWeight: 'bold'}}>
                                             &nbsp;Posts ({selectedArchivePosts ? selectedArchivePosts.data.length: '0'})
                                         </div>
-                                        {selectedArchivePosts && selectedArchivePosts.data.length > 0 ? JSON.stringify(selectedArchivePosts) : 'No Archived Posts.'
+                                        {selectedArchivePosts && selectedArchivePosts.data.length > 0 ? <PostsTable data={selectedArchivePosts.data} /> : 'No Archived Posts.'
                                         }
                                     </div>
                                 </> :
@@ -352,7 +353,7 @@ function AdminPage() {
                         </div>
                     </main>
                     <footer style={{textAlign: 'right'}}>
-                        <button style={{marginLeft : 10, marginTop: 10, marginBottom: 14, marginRight: 30, borderRadius: 3, fontSize: 20, backgroundColor: 'green', color: 'white', borderWidth: 0}} onClick={logout}>
+                        <button style={{marginLeft : 10, marginTop: 10, marginBottom: 14, marginRight: 30, borderRadius: 3, fontSize: 16, backgroundColor: 'green', color: 'white', borderWidth: 0}} onClick={logout}>
                             Log Out
                         </button>
                     </footer>
