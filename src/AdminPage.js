@@ -7,6 +7,7 @@ import SocialMediaLoginModal from "./SocialMediaLoginModal";
 import ProfileImageModal from "./ProfileImageModal";
 import PostsTable from "./PostsTable";
 import {accountImageFinder, formatDate} from "./Utils";
+import FORM_STYLES from "./FormStyles";
 function AdminPage() {
 
     const [fbProfile, setFbProfile] = useState(null);
@@ -281,30 +282,33 @@ function AdminPage() {
                                         <div style={{display: 'flex', flexDirection: 'row', marginTop: 20, marginBottom: 10, fontSize: 14, fontWeight: 'bold'}}>
                                             &nbsp;Accounts ({ selectedArchive && archiveHistoryMap?.[selectedArchive.archiveId] ? archiveHistoryMap[selectedArchive.archiveId].length : 0})
                                         </div>
-                                        <table>
-                                            <thead><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>User</b></td><td><b>Last Archived</b></td></tr></thead>
-                                            <tbody>
-                                            { selectedArchive && archiveHistoryMap?.[selectedArchive.archiveId] ? archiveHistoryMap[selectedArchive.archiveId].map((rec) => {
-                                                return <tr key={rec.id}>
-                                                        <td><div style={{marginLeft: 30}}><img alt={rec.socialMediaPlatform} src={accountImageFinder(rec.socialMediaPlatform)} width="24" height="24" />&nbsp;{rec.socialMediaUsername}</div></td>
-                                                        <td>{formatDate(rec.archiveDateCompleted)}</td>
-                                                        <td onClick={() => handleUpdateAccount(selectedArchivePosts.id, rec.socialMediaUsername)}><img alt='refresh' src={'./archive-now.png' } style={{marginLeft: 18, width: 26, height: 26, cursor: 'pointer' }}/></td>
-                                                        <td>
-                                                            <img
-                                                                alt="delete"
-                                                                onClick={() => handleDeleteSocialMediaAccount(rec.socialMediaUsername)}
-                                                                src={'./icons8-trash-24.png'}
-                                                                style={{ marginLeft: 6, width: 16, height: 16, cursor: 'pointer' }}
-                                                            />
-                                                        </td>
-                                                        </tr>
-                                                }) :
-                                                <div style={{marginTop: 15, marginLeft: 10}}>No Archived Accounts.</div>
-                                            }
-                                            </tbody>
-                                        </table>
+                                        <div style={{ maxHeight: "300px", overflowY: "auto", border: "1px solid #ddd" }}>
+                                            <table>
+                                                <thead style={{ position: "sticky", top: 0, background: "#f9f9f9", zIndex: 1 }}><tr><td style={FORM_STYLES.cellStyle}>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>User</b></td><td style={FORM_STYLES.cellStyle}><b>Last Archived</b></td></tr></thead>
+                                                <tbody>
+                                                { selectedArchive && archiveHistoryMap?.[selectedArchive.archiveId] ? archiveHistoryMap[selectedArchive.archiveId].map((rec) => {
+                                                    return <tr key={rec.id}>
+                                                            <td><div style={{marginLeft: 30}}><img alt={rec.socialMediaPlatform} src={accountImageFinder(rec.socialMediaPlatform)} width="24" height="24" />&nbsp;{rec.socialMediaUsername}</div></td>
+                                                            <td>{formatDate(rec.archiveDateCompleted)}</td>
+                                                            <td onClick={() => handleUpdateAccount(selectedArchivePosts.id, rec.socialMediaUsername)}><img alt='refresh' src={'./archive-now.png' } style={{marginLeft: 18, width: 26, height: 26, cursor: 'pointer' }}/></td>
+                                                            <td>
+                                                                <img
+                                                                    alt="delete"
+                                                                    onClick={() => handleDeleteSocialMediaAccount(rec.socialMediaUsername)}
+                                                                    src={'./icons8-trash-24.png'}
+                                                                    style={{ marginLeft: 6, width: 16, height: 16, cursor: 'pointer' }}
+                                                                />
+                                                            </td>
+                                                            </tr>
+                                                    }) :
+                                                    <div style={{marginTop: 15, marginLeft: 10}}>No Archived Accounts.</div>
+                                                }
+                                                </tbody>
+                                            </table>
+                                        </div>
 
-                                        <div style={{display: 'flex', flexDirection: 'row', marginTop: 6, borderColor: '#ccc', borderTopStyle: 'solid', borderTopWidth: 1}}>
+
+                                        <div style={{display: 'flex', flexDirection: 'row', marginTop: 6, marginBottom: 12}}>
                                             <div style={{marginLeft: 32, marginTop: 6, borderRadius: 4, width: 28, height: 28}}><img alt='instagram' src={'./facebook-16x16-icon.png'} style={{width: 28, height: 28}} /></div>
                                             <div style={{marginLeft: 8, marginTop: 6, borderRadius: 4, backgroundColor: '#d62976', width: 28, height: 28}}><img alt='instagram' src={'./instagram-white.png'} style={{width: 28, height: 28}} /></div>
                                         </div>
