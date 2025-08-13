@@ -30,21 +30,20 @@ function AdminPage() {
         setSelectedArchivePosts(selectedArchivePosts);
     }, [selectedArchivePosts]);
 
-    // archiveId
     const [selectedArchive, setSelectedArchive] = useState(null);
     useEffect(() => {
         setSelectedArchive(selectedArchive);
     }, [selectedArchive]);
 
+    const [selectedArchiveAccounts, setSelectedArchiveAccounts] = useState(null);
+    useEffect(() => {
+        setSelectedArchiveAccounts(selectedArchiveAccounts);
+    }, [selectedArchiveAccounts]);
+
     const logout = () => {
         localStorage.clear();
         window.location.href = "/login";
     }
-
-    const [socialAccounts, setSocialAccounts] = useState(null);
-    useEffect(() => {
-        setSocialAccounts(socialAccounts);
-    }, [socialAccounts]);
 
     const getArchiveInfo = (archiveId, archiveName) => {
         axios.get(`${BUILD_ENV.PROTOCOL}://${BUILD_ENV.SERVICE_DOMAIN}:${BUILD_ENV.SERVICE_PORT}/api/archives/${archiveId}/posts`)
@@ -181,12 +180,9 @@ function AdminPage() {
     }
 
     const handleUpdateAccount = (archiveName, mediaAccountUsername) => {
-        axios.get(`${BUILD_ENV.PROTOCOL}://${BUILD_ENV.SERVICE_DOMAIN}:${BUILD_ENV.SERVICE_PORT}/api/social-accounts/${archiveName}`)
+        axios.get(`${BUILD_ENV.PROTOCOL}://${BUILD_ENV.SERVICE_DOMAIN}:${BUILD_ENV.SERVICE_PORT}/api/social-accounts/${archiveName}/username/${mediaAccountUsername}`)
             .then(async res => {
-                    const match = res.data.find(
-                        acc => acc.username === mediaAccountUsername && acc.archiveId === archiveName
-                    );
-                    console.log(`MATCH=${JSON.stringify(match)}`);
+                    console.log(`Updating account w/token=${JSON.stringify(res.data.accessToken)}`);
 
                     await startArchive(mediaAccountUsername, archiveName);
                 })
@@ -290,7 +286,9 @@ function AdminPage() {
                                                     return <tr key={rec.id}>
                                                             <td><div style={{marginLeft: 30}}><img alt={rec.socialMediaPlatform} src={accountImageFinder(rec.socialMediaPlatform)} width="24" height="24" />&nbsp;{rec.socialMediaUsername}</div></td>
                                                             <td>{formatDate(rec.archiveDateCompleted)}</td>
-                                                            <td onClick={() => handleUpdateAccount(selectedArchivePosts.id, rec.socialMediaUsername)}><img alt='refresh' src={'./archive-now.png' } style={{marginLeft: 18, width: 26, height: 26, cursor: 'pointer' }}/></td>
+                                                            <td onClick={() => handleUpdateAccount(selectedArchivePosts.id, rec.socialMediaUsername)}>
+                                                                <img alt='refresh' src={'./archive-now.png' } style={{marginLeft: 18, width: 26, height: 26, cursor: 'pointer' }}/>
+                                                            </td>
                                                             <td>
                                                                 <img
                                                                     alt="delete"
