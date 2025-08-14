@@ -145,12 +145,13 @@ function AdminPage() {
 
     const [archiving, setArchiving] = useState(false)
 
-    async function startArchive(username, archiveId) {
+    async function startArchive(username, archiveId, socialMediaPlatform) {
         setArchiving(true);
+        const platform = socialMediaPlatform;
 
         const res = await fetch(`${BUILD_ENV.PROTOCOL}://${BUILD_ENV.SERVICE_DOMAIN}:${BUILD_ENV.SERVICE_PORT}/api/archives/job`, {
             method: "POST",
-            body: JSON.stringify({ username, archiveId }),
+            body: JSON.stringify({ username, archiveId, platform }),
             headers: { "Content-Type": "application/json" }
         });
         const { jobId } = await res.json();
@@ -179,12 +180,12 @@ function AdminPage() {
         setArchiving(false);
     }
 
-    const handleUpdateAccount = (archiveName, mediaAccountUsername) => {
-        axios.get(`${BUILD_ENV.PROTOCOL}://${BUILD_ENV.SERVICE_DOMAIN}:${BUILD_ENV.SERVICE_PORT}/api/social-accounts/${archiveName}/username/${mediaAccountUsername}`)
+    const handleArchiveAccountPosts = (archiveName, mediaAccountUsername, socialMediaPlatform) => {
+        axios.get(`${BUILD_ENV.PROTOCOL}://${BUILD_ENV.SERVICE_DOMAIN}:${BUILD_ENV.SERVICE_PORT}/api/social-accounts/${archiveName}/by-username?username=${mediaAccountUsername}`)
             .then(async res => {
                     console.log(`Updating account w/token=${JSON.stringify(res.data.accessToken)}`);
 
-                    await startArchive(mediaAccountUsername, archiveName);
+                    await startArchive(mediaAccountUsername, archiveName, socialMediaPlatform);
                 })
                 .catch((error) => {
                     console.log(`UPDATE ACCOUNT BY username ERROR: ${JSON.stringify(error)}`);
@@ -286,7 +287,7 @@ function AdminPage() {
                                                     return <tr key={rec.id}>
                                                             <td><div style={{marginLeft: 30}}><img alt={rec.socialMediaPlatform} src={accountImageFinder(rec.socialMediaPlatform)} width="24" height="24" />&nbsp;{rec.socialMediaUsername}</div></td>
                                                             <td>{formatDate(rec.archiveDateCompleted)}</td>
-                                                            <td onClick={() => handleUpdateAccount(selectedArchivePosts.id, rec.socialMediaUsername)}>
+                                                            <td onClick={() => handleArchiveAccountPosts(selectedArchivePosts.id, rec.socialMediaUsername, rec.socialMediaPlatform)}>
                                                                 <img alt='refresh' src={'./archive-now.png' } style={{marginLeft: 18, width: 26, height: 26, cursor: 'pointer' }}/>
                                                             </td>
                                                             <td>
