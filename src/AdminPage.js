@@ -181,7 +181,7 @@ function AdminPage() {
     }
 
     const handleArchiveAccountPosts = (archiveName, mediaAccountUsername, socialMediaPlatform) => {
-        axios.get(`${BUILD_ENV.PROTOCOL}://${BUILD_ENV.SERVICE_DOMAIN}:${BUILD_ENV.SERVICE_PORT}/api/social-accounts/${archiveName}/by-username?username=${mediaAccountUsername}`)
+        axios.get(`${BUILD_ENV.PROTOCOL}://${BUILD_ENV.SERVICE_DOMAIN}:${BUILD_ENV.SERVICE_PORT}/api/social-accounts/${archiveName}/by-username?username=${mediaAccountUsername}&platform=${socialMediaPlatform}`)
             .then(async res => {
                     console.log(`Updating account w/token=${JSON.stringify(res.data.accessToken)}`);
 
@@ -285,7 +285,12 @@ function AdminPage() {
                                                 <tbody>
                                                 { selectedArchive && archiveHistoryMap?.[selectedArchive.archiveId] ? archiveHistoryMap[selectedArchive.archiveId].map((rec) => {
                                                     return <tr key={rec.id}>
-                                                            <td><div style={{marginLeft: 30}}><img alt={rec.socialMediaPlatform} src={accountImageFinder(rec.socialMediaPlatform)} width="24" height="24" />&nbsp;{rec.socialMediaUsername}</div></td>
+                                                            <td onClick={() => alert('refresh account auth')}>
+                                                                <div style={{marginLeft: 16}}>
+                                                                    <img alt='refresh' src={'./icons8-refresh-32.png' } style={{width: 10, height: 10, cursor: 'pointer' }}/>&nbsp;
+                                                                    <img alt={rec.socialMediaPlatform} src={accountImageFinder(rec.socialMediaPlatform)} width="24" height="24" />&nbsp;{rec.socialMediaUsername}
+                                                                </div>
+                                                            </td>
                                                             <td>{formatDate(rec.archiveDateCompleted)}</td>
                                                             <td onClick={() => handleArchiveAccountPosts(selectedArchivePosts.id, rec.socialMediaUsername, rec.socialMediaPlatform)}>
                                                                 <img alt='refresh' src={'./archive-now.png' } style={{marginLeft: 18, width: 26, height: 26, cursor: 'pointer' }}/>
