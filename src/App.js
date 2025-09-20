@@ -13,8 +13,12 @@ function App() {
             <div style={{marginLeft : 10, fontStyle: 'bold', color: 'green', float: 'left', flexDirection: 'column'}}>
                 <table>
                     <tbody>
-                        <tr><td><img alt="logo" src={'./black-cat.png'} width={'20px'} height={'20px'}/></td><td><h4>&nbsp;minette</h4></td>
-                            <td style={{display: 'block', marginLeft: 140}}><img alt="banner" src="./social-archivr-banner-alt.png" /></td>
+                        <tr>
+                            <td>
+                                <img alt="logo" src={'./black-cat.png'} width={'20px'} height={'20px'}/>
+                            </td>
+                            <td><h4>&nbsp;Bunsho 文書館</h4></td>
+                            <td style={{display: 'block', marginLeft: 60}}><img alt="banner" src="./social-archivr-banner-alt.png" /></td>
                         </tr>
                     </tbody>
                 </table>

@@ -3,11 +3,12 @@ import {useState, useEffect} from "react";
 import BUILD_ENV from './Environment';
 
 import 'react-tabs/style/react-tabs.css';
-import SocialMediaLoginModal from "./SocialMediaLoginModal";
+import SocialMediaLogin from "./SocialMediaLogin";
 import ProfileImageModal from "./ProfileImageModal";
 import PostsTable from "./PostsTable";
 import {accountImageFinder, formatDate} from "./Utils";
 import FORM_STYLES from "./FormStyles";
+import BasicModal from "./BasicModal";
 function AdminPage() {
 
     const [fbProfile, setFbProfile] = useState(null);
@@ -200,21 +201,37 @@ function AdminPage() {
         alert(`TODO: delete SM Account ${account}`);
     }
 
-    const [showLogin, setShowLogin] = useState(false);
     const [userData, setUserData] = useState(null);
     const savedToken = localStorage.getItem('fb_token');
+    const [smLoginOpen, setSmLoginOpen] = useState(false);
+    const [open, setOpen] = useState(false);
 
     return (
         <>
-            <SocialMediaLoginModal
-                show={showLogin}
-                onClose={() => setShowLogin(false)}
-                accessToken={savedToken}
-                onLoginSuccess={(data) => {
-                    setUserData(data);
-                    localStorage.setItem('fb_token', data.accessToken);
-                }}
-            />
+            <BasicModal isOpen={smLoginOpen} onClose={() => setSmLoginOpen(false)}>
+                <h2 style={{ marginTop: 0 }}>Refresh Login</h2>
+                <SocialMediaLogin
+                    accessToken={savedToken}
+                    onLoginSuccess={(data) => {
+                        setUserData(data);
+                        localStorage.setItem('fb_token', data.accessToken);
+                    }}
+                />
+                <hr/>
+                <button
+                    onClick={() => smLoginOpen(false)}
+                    style={{
+                        padding: "8px 16px",
+                        backgroundColor: "#28a745",
+                        color: "#fff",
+                        border: "none",
+                        borderRadius: "6px",
+                        cursor: "pointer",
+                    }}
+                >
+                    Close
+                </button>
+            </BasicModal>
             <div>
                 <div className="parent">
                     <header>
@@ -285,7 +302,7 @@ function AdminPage() {
                                                 <tbody>
                                                 { selectedArchive && archiveHistoryMap?.[selectedArchive.archiveId] ? archiveHistoryMap[selectedArchive.archiveId].map((rec) => {
                                                     return <tr key={rec.id}>
-                                                            <td onClick={() => alert('refresh account auth')}>
+                                                            <td onClick={() => setSmLoginOpen(true)}>
                                                                 <div style={{marginLeft: 16}}>
                                                                     <img alt='refresh' src={'./icons8-refresh-32.png' } style={{width: 10, height: 10, cursor: 'pointer' }}/>&nbsp;
                                                                     <img alt={rec.socialMediaPlatform} src={accountImageFinder(rec.socialMediaPlatform)} width="24" height="24" />&nbsp;{rec.socialMediaUsername}
@@ -318,7 +335,7 @@ function AdminPage() {
                                         </div>
                                         <hr/>
                                         <div style={{display: 'flex', flexDirection: 'row', marginTop: 20, marginBottom: 10, fontSize: 14, fontWeight: 'bold'}}>
-                                            &nbsp;Posts ({selectedArchivePosts ? selectedArchivePosts.data.length: '0'})
+                                            &nbsp;Archived Posts ({selectedArchivePosts ? selectedArchivePosts.data.length: '0'})
                                         </div>
                                         {selectedArchivePosts && selectedArchivePosts.data.length > 0 ? <PostsTable data={selectedArchivePosts.data} /> : 'No Archived Posts.'
                                         }
